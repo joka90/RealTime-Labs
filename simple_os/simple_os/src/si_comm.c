@@ -130,7 +130,7 @@ void si_comm_open(void)
     clilen = sizeof(cli_addr); 
 #endif
 
-    portno = 2000; 
+    portno = 2546; 
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
