@@ -11,3 +11,38 @@
 *.lai
 *.la
 *.a
+
+# Emacs backups
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+# Vim backups
+*.swp
+*.swo
+*~
+
+# Org-mode
+.org-id-locations
+*_archive
+
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+#bin files
+prog_x86_host
+
+
