@@ -58,7 +58,7 @@ void barber_task(void)
         /* cut some hair from all customers */
         process_all_customers(&Barber_Shop);
         /* take a short break */
-        si_wait_n_ms(3000); 
+        si_wait_n_ms(3001); 
     }
 }
 
