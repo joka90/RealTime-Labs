@@ -6,3 +6,7 @@ elif [ x$arg0 = xsetit-csh ]; then
 	setenv SIMPLE_OS_DIR $pwd/simple_os
 fi
 echo $SIMPLE_OS_DIR
+
+
+cd simple_os
+make_lib_x86_host

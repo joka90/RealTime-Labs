@@ -22,7 +22,7 @@ public class SimpleOSComm {
 	{ 
             try 
             {
-                SimpleOSSocket = new Socket("localhost", 2000); 
+                SimpleOSSocket = new Socket("localhost", 2546); 
                 fromSimpleOS = new BufferedReader(
                     new InputStreamReader(SimpleOSSocket.getInputStream()));
                 toSimpleOS = new PrintWriter(SimpleOSSocket.getOutputStream(), true); 
