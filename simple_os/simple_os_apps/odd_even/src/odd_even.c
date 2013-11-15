@@ -61,6 +61,7 @@ void increment_number(int inc_value)
 
     /* fig_begin number_inc_value */ 
     Number += inc_value;
+    long_calculation();
     /* fig_end number_inc_value */ 
 
     if (Number % 2 == 0) 
