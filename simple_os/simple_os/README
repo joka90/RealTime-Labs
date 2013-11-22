@@ -1,0 +1,5 @@
+on ubuntu 64: 
+sudo apt-get install gcc-multilib
+
+build:
+bash make_lib_x86_host

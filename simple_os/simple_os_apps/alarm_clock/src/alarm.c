@@ -20,6 +20,9 @@ stack_item Clock_Stack[STACK_SIZE];
 /* stack for set_task */ 
 stack_item Set_Stack[STACK_SIZE]; 
 
+/* stack for alarm_task */ 
+stack_item Alarm_Stack[STACK_SIZE]; 
+
 /* time data type */ 
 typedef struct 
 {
@@ -154,6 +157,24 @@ void get_time(int *hours, int *minutes, int *seconds)
     si_sem_signal(&Clock.mutex); 
 }
 
+/* time_ok: returns nonzero if hours, minutes and seconds represents a valid time */ 
+int time_ok(int hours, int minutes, int seconds)
+{
+    return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && 
+        seconds >= 0 && seconds <= 59; 
+}
+
+/* time_from_set_time_message: extract time from set time 
+   message from user interface */ 
+void time_from_set_time_message(char message[], int *hours, int *minutes, int *seconds)
+{
+    sscanf(message,"set %d %d %d", hours, minutes, seconds); 
+}
+
+
+/* --- Tasks --- */
+
+
 /* clock_task: clock task */ 
 void clock_task(void) 
 {
@@ -175,18 +196,32 @@ void clock_task(void)
     }
 }
 
-/* time_ok: returns nonzero if hours, minutes and seconds represents a valid time */ 
-int time_ok(int hours, int minutes, int seconds)
-{
-    return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && 
-        seconds >= 0 && seconds <= 59; 
-}
 
-/* time_from_set_time_message: extract time from set time 
-   message from user interface */ 
-void time_from_set_time_message(char message[], int *hours, int *minutes, int *seconds)
+/* alarm_task: raises the alarm */
+void alarm_task(void)
 {
-    sscanf(message,"set %d %d %d", hours, minutes, seconds); 
+    /* local copy of Clock.alarm_enabled */
+    int alarm_enabled = 1;
+
+    while(1)
+    {
+        /* wait for alarm time */    
+        si_sem_wait(&Clock.start_alarm);    
+
+            while(alarm_enabled)
+            {
+                /* trigger the alarm */
+                display_alarm_text();
+
+                /* wait one second */ 
+                si_wait_n_ms(1000);
+
+                /* update local copy of Clock.alarm_enabled */
+                si_sem_wait(&Clock.mutex);
+                alarm_enabled = Clock.alarm_enabled;
+                si_sem_signal(&Clock.mutex);
+            }
+    }
 }
 
 /* time_from_set_alarm_message: extract time from set time 
@@ -255,6 +290,8 @@ void set_task(void)
     }
 }
 
+
+
 /* main */ 
 int main(void)
 {
@@ -274,7 +311,10 @@ int main(void)
 
     si_task_create(clock_task, &Clock_Stack[STACK_SIZE-1], 20); 
 
-    si_task_create(set_task, &Set_Stack[STACK_SIZE-1], 15); 
+    si_task_create(alarm_task, &Alarm_Stack[STACK_SIZE-1],17);
+
+    si_task_create(set_task, &Set_Stack[STACK_SIZE-1], 15);
+ 
 
     /* start the kernel */ 
     si_kernel_start(); 
