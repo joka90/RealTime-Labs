@@ -241,8 +241,6 @@ void alarm_task(void)
             si_sem_signal(&Clock.mutex);
         }
 
-        /* release clock variables */ 
-        //si_sem_signal(&Clock.start_alarm);
     }
 }
 
