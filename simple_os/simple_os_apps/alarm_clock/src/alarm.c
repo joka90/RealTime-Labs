@@ -101,7 +101,7 @@ void clock_set_alarm(int hours, int minutes, int seconds)
     si_sem_signal(&Clock.mutex); 
 }
 
-/* clock_set_alarm: set current time to hours, minutes and seconds */ 
+/* clock_reset_alarm:  */ 
 void clock_reset_alarm(void)
 {
     si_sem_wait(&Clock.mutex); 
@@ -111,6 +111,17 @@ void clock_reset_alarm(void)
     erase_alarm_time();
     erase_alarm_text();
 
+    si_sem_signal(&Clock.mutex); 
+}
+
+
+void check_alarm_time(void)
+{
+    si_sem_wait(&Clock.mutex); 
+    if (Clock.time.seconds >= Clock.alarm_time.seconds && Clock.time.minutes >= Clock.alarm_time.minutes && Clock.time.hours >= Clock.alarm_time.hours && Clock.alarm_enabled == 1)
+    {
+        si_sem_signal(&Clock.start_alarm);
+    }
     si_sem_signal(&Clock.mutex); 
 }
 
@@ -137,6 +148,7 @@ void increment_time(void)
             }
         }
     }
+    
 
     /* release clock variables */ 
     si_sem_signal(&Clock.mutex); 
@@ -187,9 +199,11 @@ void clock_task(void)
         /* read and display current time */ 
         get_time(&hours, &minutes, &seconds); 
         display_time(hours, minutes, seconds); 
+        
+        check_alarm_time();
 
         /* increment time */ 
-        increment_time(); 
+        increment_time();
 
         /* wait one second */ 
         si_wait_n_ms(1000); 
@@ -208,19 +222,27 @@ void alarm_task(void)
         /* wait for alarm time */    
         si_sem_wait(&Clock.start_alarm);    
 
-            while(alarm_enabled)
-            {
-                /* trigger the alarm */
-                display_alarm_text();
+        /* update local copy of Clock.alarm_enabled */
+        si_sem_wait(&Clock.mutex);
+        alarm_enabled = Clock.alarm_enabled;
+        si_sem_signal(&Clock.mutex);
 
-                /* wait one second */ 
-                si_wait_n_ms(1000);
+        while(alarm_enabled)
+        {
+            /* trigger the alarm */
+            display_alarm_text();
 
-                /* update local copy of Clock.alarm_enabled */
-                si_sem_wait(&Clock.mutex);
-                alarm_enabled = Clock.alarm_enabled;
-                si_sem_signal(&Clock.mutex);
-            }
+            /* wait one second */ 
+            si_wait_n_ms(10000);
+
+            /* update local copy of Clock.alarm_enabled */
+            si_sem_wait(&Clock.mutex);
+            alarm_enabled = Clock.alarm_enabled;
+            si_sem_signal(&Clock.mutex);
+        }
+
+        /* release clock variables */ 
+        //si_sem_signal(&Clock.start_alarm);
     }
 }
 
