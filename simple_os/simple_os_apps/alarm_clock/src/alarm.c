@@ -82,6 +82,35 @@ void clock_set_time(int hours, int minutes, int seconds)
     si_sem_signal(&Clock.mutex); 
 }
 
+/* clock_set_alarm: set current time to hours, minutes and seconds */ 
+void clock_set_alarm(int hours, int minutes, int seconds)
+{
+    si_sem_wait(&Clock.mutex); 
+
+    Clock.alarm_time.hours = hours; 
+    Clock.alarm_time.minutes = minutes; 
+    Clock.alarm_time.seconds = seconds; 
+
+    Clock.alarm_enabled = 1;
+
+    display_alarm_time(hours, minutes, seconds);
+
+    si_sem_signal(&Clock.mutex); 
+}
+
+/* clock_set_alarm: set current time to hours, minutes and seconds */ 
+void clock_reset_alarm(void)
+{
+    si_sem_wait(&Clock.mutex); 
+
+    Clock.alarm_enabled = 0;
+
+    erase_alarm_time();
+    erase_alarm_text();
+
+    si_sem_signal(&Clock.mutex); 
+}
+
 /* increment_time: increments the current time with 
    one second */ 
 void increment_time(void)
@@ -160,6 +189,12 @@ void time_from_set_time_message(char message[], int *hours, int *minutes, int *s
     sscanf(message,"set %d %d %d", hours, minutes, seconds); 
 }
 
+/* time_from_set_alarm_message: extract time from set time 
+   message from user interface */ 
+void time_from_set_alarm_message(char message[], int *hours, int *minutes, int *seconds)
+{
+    sscanf(message,"alarm %d %d %d", hours, minutes, seconds); 
+}
 
 /* set_task: reads messages from the user interface, and 
    sets the clock, or exits the program */ 
@@ -190,6 +225,22 @@ void set_task(void)
             {
                 si_ui_show_error("Illegal value for hours, minutes or seconds"); 
             }
+        }
+        else if (strncmp(message, "alarm", 5) == 0)
+        {
+            time_from_set_alarm_message(message, &hours, &minutes, &seconds); 
+            if (time_ok(hours, minutes, seconds))
+            {
+                clock_set_alarm(hours, minutes, seconds); 
+            }
+            else
+            {
+                si_ui_show_error("Illegal value for hours, minutes or seconds"); 
+            }
+        }
+        else if (strncmp(message, "reset", 5) == 0)
+        {
+            clock_reset_alarm();
         }
         /* check if it is an exit message */ 
         else if (strcmp(message, "exit") == 0)
