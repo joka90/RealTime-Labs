@@ -49,6 +49,7 @@ void passenger_task(void)
     
 	while (1)
     {
+	si_wait_n_ms(100);
     }
 }
 
@@ -58,6 +59,11 @@ void lift_task(void)
 
     while (1)
     {
+		draw_lift(mainlift);
+		lift_move(mainlift, 1, 1);
+		draw_lift(mainlift);
+		si_wait_n_ms(1000);
+		lift_move(mainlift, 0, 1);
     }
 }
 
@@ -69,11 +75,9 @@ void user_task(void)
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 	
-	draw_lift(mainlift);
-	
-	    while (1)
+	while (1)
     {
-	draw_lift(mainlift);
+	si_wait_n_ms(100);
     }
 }
 

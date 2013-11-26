@@ -155,7 +155,7 @@ static int n_passengers_in_lift(lift_type lift)
    shall move again. */
 void lift_has_arrived(lift_type lift)
 {
-
+	
 }
 
 /* --- functions related to lift task END --- */

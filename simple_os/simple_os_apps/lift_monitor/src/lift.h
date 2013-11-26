@@ -62,13 +62,17 @@ typedef struct
 typedef lift_data_type* lift_type;
 /* fig_end lift_mon_type */ 
 
+
 /* lift_create: creates and initialises a variable of type lift_type */
 lift_type lift_create(void); 
 
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift); 
 
-/* fig_begin mon_functions */ 
+
+
+/* ======== fig_begin mon_functions ======== */
+ 
 /* MONITOR function lift_next_floor: computes the floor to which 
    the lift shall travel. The parameter *change_direction 
    indicates if the direction shall be changed */
@@ -93,9 +97,12 @@ void lift_has_arrived(lift_type lift);
    at to_floor */ 
 void lift_travel(
     lift_type lift, int id, int from_floor, int to_floor);
+	
 /* fig_end mon_functions */ 
 
+
 int random_level(void);
+
 
 void init_lift(void);
 
