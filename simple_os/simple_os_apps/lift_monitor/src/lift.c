@@ -211,13 +211,16 @@ static int n_passengers_on_floor(lift_type lift, int floor)
    shall move again. */
 void lift_has_arrived(lift_type lift)
 {
-	/* Berätta för alla att hissen är på ny våning */
-	si_cv_broadcast(&lift->change);
 	
 	/* Kolla om nån ska på eller av */
+	if (n_passengers_on_floor(lift, lift->floor) || (n_passengers_to_floor(lift, lift->floor)))
+		{
+			/* Berätta för alla att hissen är på ny våning */
+			si_cv_broadcast(&lift->change);
 	
-	/* Vänta på våningen */
-	si_wait_n_ms(TIME_ON_FLOOR);
+			/* Vänta i så fall ett tag på våningen */
+			si_wait_n_ms(TIME_ON_FLOOR);
+		}
 }
 
 /* --- functions related to lift task END --- */

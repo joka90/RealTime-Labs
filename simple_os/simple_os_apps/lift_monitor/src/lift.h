@@ -15,8 +15,8 @@
 /* fig_end lift_h_defs */ 
 
 /* lift speeds in ms */
-#define TIME_BETWEEN_FLOORS 1000
-#define TIME_ON_FLOOR 500
+#define TIME_BETWEEN_FLOORS 800
+#define TIME_ON_FLOOR 400
 
 /* easier to read words */
 #define UP 1
