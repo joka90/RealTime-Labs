@@ -64,6 +64,13 @@ void lift_task(void)
 
     while (1)
     {
+	
+	lift_next_floor(mainlift, &next, &dirchange);
+	lift_move(mainlift, next, dirchange);
+	lift_has_arrived(mainlift);
+	
+	
+	/* För debug
 		lift_next_floor(mainlift, &next, &dirchange);
 		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
 		lift_move(mainlift, next, dirchange);
@@ -112,6 +119,7 @@ void lift_task(void)
 		
 		printf("| %d %d |", next, dirchange);
 		exit(mainlift->floor);
+		*/
     }
 }
 

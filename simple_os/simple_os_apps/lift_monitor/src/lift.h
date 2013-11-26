@@ -14,6 +14,10 @@
 #define MAX_N_PASSENGERS 5
 /* fig_end lift_h_defs */ 
 
+/* lift speeds in ms */
+#define TIME_BETWEEN_FLOORS 1000
+#define TIME_ON_FLOOR 500
+
 /* easier to read words */
 #define UP 1
 #define DOWN 0

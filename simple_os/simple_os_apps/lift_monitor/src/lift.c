@@ -130,7 +130,7 @@ void lift_move(lift_type lift, int next_floor, int change_direction)
     si_sem_signal(&lift->mutex); 
         
     /* it takes two seconds to move to the next floor */ 
-    si_wait_n_ms(2000); 
+    si_wait_n_ms(TIME_BETWEEN_FLOORS); 
         
     /* reserve lift */ 
     si_sem_wait(&lift->mutex); 
@@ -170,6 +170,41 @@ static int n_passengers_in_lift(lift_type lift)
     return n_passengers; 
 }
 
+/* Ger hur många i hissen som ska av på en viss våning */
+static int n_passengers_to_floor(lift_type lift, int floor)
+{
+	int n = 0;
+	int i;
+	
+	for (i=0; i < MAX_N_PASSENGERS; i++)
+		{
+			if(lift->passengers_in_lift[i].to_floor = floor)
+			{
+				n++;
+			}
+		}
+		
+	return n;
+}
+		
+
+/* Ger hur många i på en viss våning som vill in */
+static int n_passengers_on_floor(lift_type lift, int floor)
+{
+	int n = 0;
+	int i;
+	
+	for (i=0; i < MAX_N_PASSENGERS; i++)
+		{
+			if(lift->persons_to_enter[floor][i].id != NO_ID)
+			{
+				n++;
+			}
+		}
+		
+	return n;
+}		
+
 /* MONITOR function lift_has_arrived: shall be called by the lift task
    when the lift has arrived at the next floor. This function indicates
    to other tasks that the lift has arrived, and then waits until the lift
@@ -179,8 +214,10 @@ void lift_has_arrived(lift_type lift)
 	/* Berätta för alla att hissen är på ny våning */
 	si_cv_broadcast(&lift->change);
 	
+	/* Kolla om nån ska på eller av */
+	
 	/* Vänta på våningen */
-	si_wait_n_ms(1000);
+	si_wait_n_ms(TIME_ON_FLOOR);
 }
 
 /* --- functions related to lift task END --- */
