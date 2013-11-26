@@ -88,7 +88,13 @@ void lift_delete(lift_type lift)
    shall be changed */
 void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 {
-
+    /* reserve lift */ 
+    si_sem_wait(&lift->mutex);
+	
+	
+	
+	/* release lift */ 
+    si_sem_signal(&lift->mutex); 
 }
 
 void lift_move(lift_type lift, int next_floor, int change_direction)
