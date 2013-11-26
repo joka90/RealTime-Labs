@@ -8,15 +8,16 @@
 #define N_FLOORS 5
 
 /* maximum number of persons in the lift system */ 
-#define MAX_N_PERSONS 10
+#define MAX_N_PERSONS 2
 
 /* maximum number of passengers in lift */ 
 #define MAX_N_PASSENGERS 5
 /* fig_end lift_h_defs */ 
 
-/* lift speeds in ms */
+/* times in ms */
 #define TIME_BETWEEN_FLOORS 800
 #define TIME_ON_FLOOR 400
+#define TIME_TO_NEW_JOURNEY 5000
 
 /* easier to read words */
 #define UP 1

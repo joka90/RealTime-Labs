@@ -46,10 +46,27 @@ int random_level(void)
 void passenger_task(void)
 {
 
+	int id;
+	int length;
+	int send_task_id;
+	
+	int current;
+	int from;
+	int to;
+
+    /* receive id */ 
+    si_message_receive((char *) &id, &length, &send_task_id);
     
 	while (1)
     {
 	si_wait_n_ms(100);
+	/* 
+	from = current;
+	to = random_level();
+	lift_travel(mainlift, id, from, to);
+	current = to;
+	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
+	*/
     }
 }
 
@@ -130,13 +147,45 @@ void user_task(void)
 {
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
+
+	printf("blaba\n");
+	int n_persons = 0;
 	
-	while (1)
+	/* message array */ 
+    char message[SI_UI_MAX_MESSAGE_SIZE]; 
+
+    while(1)
     {
-	si_wait_n_ms(100);
+        /* read a message */ 
+        si_ui_receive(message); 
+        /* check if it is a set time message */ 
+        if (strncmp(message, "new", 3) == 0)
+        {
+		printf("blaba!!!!\n");
+			if (n_persons == MAX_N_PERSONS)
+			{
+				si_ui_show_error("Failure to comply: Overpopulation!");
+			} else {
+			
+				int id = n_persons++;
+				si_task_create(passenger_task, &Passenger_Stack[id][STACK_SIZE-1], 17);
+			
+				/* send id message to created task */ 
+				si_message_send((char *) &id, sizeof(int), id_to_task_id(id)); 
+			}
+        }
+        /* check if it is an exit message */ 
+        else if (strcmp(message, "exit") == 0)
+        {
+            exit(0); 
+        }
+        /* not a legal message */ 
+        else 
+        {
+            si_ui_show_error("unexpected message type"); 
+        }
     }
 }
-
 
 
 
@@ -146,6 +195,9 @@ int main(void)
 {
     /* initialise kernel */ 
     si_kernel_init(); 
+	
+	/* initialise message handling */ 
+    si_message_init(); 
 	
 	/* set up random number generator */
 	srand(12345);

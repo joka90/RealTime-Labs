@@ -308,5 +308,20 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 
 }
 
+/* TASK_ID_FIRST_PERSON is the task_id of the first person. It assumes creation of 
+
+1. idle task (created by si_kernel_init), task_id 0
+2. lift task, task_id 1
+3. user task, task_id 2
+
+*/ 
+#define TASK_ID_FIRST_PERSON 3
+
+/* id_to_task_id: convert id to task_id */ 
+int id_to_task_id(int id)
+{
+    return id + TASK_ID_FIRST_PERSON; 
+}
+
 /* --- functions related to person task END --- */
 
