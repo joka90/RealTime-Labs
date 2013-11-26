@@ -14,6 +14,10 @@
 #define MAX_N_PASSENGERS 5
 /* fig_end lift_h_defs */ 
 
+/* easier to read words */
+#define UP 1
+#define DOWN 0
+
 /* fig_begin person_data_type */ 
 /* data structure for person information */ 
 typedef struct

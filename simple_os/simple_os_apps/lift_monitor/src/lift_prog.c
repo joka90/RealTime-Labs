@@ -57,13 +57,61 @@ void passenger_task(void)
 void lift_task(void)
 {
 
+	int next;
+	int dirchange;
+	
+	draw_lift(mainlift);
+
     while (1)
     {
-		draw_lift(mainlift);
-		lift_move(mainlift, 1, 1);
-		draw_lift(mainlift);
-		si_wait_n_ms(1000);
-		lift_move(mainlift, 0, 1);
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+	    lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_next_floor(mainlift, &next, &dirchange);
+		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
+		lift_move(mainlift, next, dirchange);
+		
+		lift_has_arrived(mainlift);
+		
+		printf("| %d %d |", next, dirchange);
+		exit(mainlift->floor);
     }
 }
 

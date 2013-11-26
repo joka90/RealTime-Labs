@@ -88,10 +88,31 @@ void lift_delete(lift_type lift)
    shall be changed */
 void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 {
+   
     /* reserve lift */ 
     si_sem_wait(&lift->mutex);
 	
-	
+	if (lift->up)
+	{
+		if (lift->floor == N_FLOORS-1)
+		{
+			*change_direction = lift->up;
+			*next_floor = lift->floor - 1;
+		} else {
+			*change_direction = 0;
+			*next_floor = lift->floor + 1;
+		}
+			
+	} else {
+		if (lift->floor == 0)
+		{
+			*change_direction = !lift->up;
+			*next_floor = lift->floor + 1;
+		} else {
+			*change_direction = 0;
+			*next_floor = lift->floor - 1;
+		}
+	}
 	
 	/* release lift */ 
     si_sem_signal(&lift->mutex); 
@@ -155,7 +176,11 @@ static int n_passengers_in_lift(lift_type lift)
    shall move again. */
 void lift_has_arrived(lift_type lift)
 {
+	/* Berätta för alla att hissen är på ny våning */
+	si_cv_broadcast(&lift->change);
 	
+	/* Vänta på våningen */
+	si_wait_n_ms(1000);
 }
 
 /* --- functions related to lift task END --- */
@@ -209,10 +234,7 @@ static void enter_floor(
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-static void leave_floor(
-    lift_type lift, int id, int enter_floor)
-
-/* fig_end lift_c_prot */ 
+static void leave_floor(lift_type lift, int id, int enter_floor)
 {
     int i; 
     int floor_index; 
