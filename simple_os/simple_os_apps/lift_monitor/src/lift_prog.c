@@ -45,6 +45,7 @@ int random_level(void)
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */
 void passenger_task(void)
 {
+	printf("blaba\n");
 
 	int id;
 	int length;
@@ -56,17 +57,18 @@ void passenger_task(void)
 
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);
+	
+	current = random_level();
     
 	while (1)
     {
-	si_wait_n_ms(100);
-	/* 
 	from = current;
 	to = random_level();
+	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
 	lift_travel(mainlift, id, from, to);
 	current = to;
+	printf("Passenger %d arrived at %d.\n", id, current);
 	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
-	*/
     }
 }
 
@@ -148,7 +150,6 @@ void user_task(void)
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 
-	printf("blaba\n");
 	int n_persons = 0;
 	
 	/* message array */ 
