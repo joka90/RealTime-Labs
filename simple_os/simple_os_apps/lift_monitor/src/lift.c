@@ -305,7 +305,12 @@ static void leave_floor(lift_type lift, int id, int enter_floor)
    starting at from_floor, and ending at to_floor */ 
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 {
-
+    int in_lift;
+    int not_arrived = 0;
+    
+    while (not_arrived)
+    {
+    }
 }
 
 /* TASK_ID_FIRST_PERSON is the task_id of the first person. It assumes creation of 
