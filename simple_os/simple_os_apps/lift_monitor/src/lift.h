@@ -8,7 +8,7 @@
 #define N_FLOORS 5
 
 /* maximum number of persons in the lift system */ 
-#define MAX_N_PERSONS 2
+#define MAX_N_PERSONS 10
 
 /* maximum number of passengers in lift */ 
 #define MAX_N_PASSENGERS 5
@@ -126,5 +126,15 @@ There shall be one task, called user_task, which receives commands from the grap
 */
 void user_task(void);
 
+
+/* leave_floor: makes a person with id id at enter_floor leave 
+   enter_floor */ 
+void leave_floor(lift_type lift, int id, int enter_floor);
+
+/* enter_floor: makes a person with id id stand at floor floor */ 
+void enter_floor(lift_type lift, int id, int floor);
+
+
+int id_to_task_id(int id);
 
 #endif

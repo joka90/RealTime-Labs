@@ -9,6 +9,7 @@
 /* standard includes */ 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /* panic function, to be called when fatal errors occur */ 
 static void lift_panic(const char message[])
@@ -178,7 +179,7 @@ static int n_passengers_to_floor(lift_type lift, int floor)
 	
 	for (i=0; i < MAX_N_PASSENGERS; i++)
 		{
-			if(lift->passengers_in_lift[i].to_floor = floor)
+			if(lift->passengers_in_lift[i].to_floor == floor)
 			{
 				n++;
 			}
@@ -245,7 +246,7 @@ static int passenger_wait_for_lift(lift_type lift, int wait_floor)
 
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
-static void enter_floor(
+void enter_floor(
     lift_type lift, int id, int floor)
 {
     int i; 
@@ -275,7 +276,7 @@ static void enter_floor(
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-static void leave_floor(lift_type lift, int id, int enter_floor)
+void leave_floor(lift_type lift, int id, int enter_floor)
 {
     int i;
     int floor_index;
@@ -325,10 +326,9 @@ static void leave_lift(lift_type lift, int id)
     {
         lift_panic("cannot leave lift"); 
     }
-    person_data_type person;
-    person = (person_data_type) {NO_ID, NO_FLOOR};
-    /* leave floor at index floor_index */ 
-    lift->passengers_in_lift[lift_index] = person;
+
+    lift->passengers_in_lift[lift_index ].id = NO_ID; 
+    lift->passengers_in_lift[lift_index ].to_floor = NO_FLOOR; 
 }
 
 
@@ -354,32 +354,28 @@ static void enter_lift(lift_type lift, int id, int to_floor)
     {
         lift_panic("cannot enter lift"); 
     }
-    person_data_type person;
-    person = (person_data_type) {id, to_floor};
+
     /* enter floor at index floor_index */ 
-    lift->passengers_in_lift[lift_index] = person;
+    lift->passengers_in_lift[lift_index].id = id; 
+    lift->passengers_in_lift[lift_index].to_floor = to_floor; 
 }
 
 /* MONITOR function lift_travel: performs a journey with the lift
    starting at from_floor, and ending at to_floor */ 
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 {
-    int in_lift;
     int boarded = 0;
     int arrived = 0;
-    person_data_type person;
-    person = (person_data_type) {id, to_floor};
-    
+
     
     while (!boarded)
     {
         si_sem_wait(&lift->mutex);
         si_cv_wait(&lift->change);
-                    printf("Passenger %d  from %d to %d.\n", person.id, from_floor, person.to_floor);
+                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (!passenger_wait_for_lift(lift, from_floor))
         {
             leave_floor(lift, id, from_floor);
-            //lift->passengers_in_lift[id] = person;
             enter_lift(lift, id, to_floor);
             boarded = 1;
         }
@@ -391,13 +387,12 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
         si_sem_wait(&lift->mutex);
         si_cv_wait(&lift->change);
         
-                    printf("Passenger %d  from %d to %d.\n", person.id, from_floor, person.to_floor);
+                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (lift->floor == to_floor)
         {
             leave_lift(lift, id);
             enter_floor(lift, id, to_floor);
-            //person = (person_data_type) {NO_ID, NO_FLOOR};
-            //lift->passengers_in_lift[id] = person;
+
             
             arrived = 1;
         }

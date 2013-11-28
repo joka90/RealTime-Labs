@@ -9,6 +9,7 @@
 /* standard includes */ 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /* stack size */ 
 #define STACK_SIZE 5000 
@@ -45,7 +46,7 @@ int random_level(void)
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */
 void passenger_task(void)
 {
-	printf("blaba\n");
+	//printf("blaba\n");
 
 	int id;
 	int length;
@@ -54,8 +55,6 @@ void passenger_task(void)
 	int current;
 	int from;
 	int to;
-	person_data_type person;
-
 
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);
@@ -67,22 +66,22 @@ void passenger_task(void)
     	from = current;
     	to = random_level();
     	
-    	person = (person_data_type) {id, to};
     	
     	si_sem_wait(&mainlift->mutex);
-    	mainlift->persons_to_enter[current][id] = person;
+        enter_floor(mainlift,id, current);//spawna
     	si_sem_signal(&mainlift->mutex);
 
     	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
     	
-    	lift_travel(mainlift, id, from, to);
+    	lift_travel(mainlift, id, from, to);//res
     	current = to;
 
     	printf("Passenger %d arrived at %d.\n", id, current);
     	
     	si_sem_wait(&mainlift->mutex);
-    	person=(person_data_type) {NO_ID, NO_FLOOR};
-    	mainlift->persons_to_enter[current][id] = person;
+
+        leave_floor(mainlift, id, current);//ta bort från våning
+
     	si_sem_signal(&mainlift->mutex);
     	
     	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
