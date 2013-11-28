@@ -45,9 +45,6 @@ lift_type lift_create(void)
     /* set direction of lift travel to up */
     lift->up = 1;
 
-    /* the lift is not moving */ 
-    lift->moving = 0; 
-
     /* initialise person information */
     for (floor = 0; floor < N_FLOORS; floor++)
     {
@@ -65,9 +62,6 @@ lift_type lift_create(void)
         lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
     }
 
-    /* initialise semaphore and event variable */
-    si_sem_init(&lift->mutex, 1); 
-    si_cv_init(&lift->change, &lift->mutex); 
 
     return lift;
 }
@@ -87,7 +81,7 @@ void lift_delete(lift_type lift)
 /* MONITOR function lift_next_floor: computes the floor to which the lift 
    shall travel. The parameter *change_direction indicates if the direction 
    shall be changed */
-void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
+void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)//TODO
 {
    
     /* reserve lift */ 
@@ -119,7 +113,7 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
     si_sem_signal(&lift->mutex); 
 }
 
-void lift_move(lift_type lift, int next_floor, int change_direction)
+void lift_move(lift_type lift, int next_floor, int change_direction)//TODO
 {
     /* reserve lift */ 
     si_sem_wait(&lift->mutex); 
@@ -206,24 +200,6 @@ static int n_passengers_on_floor(lift_type lift, int floor)
 	return n;
 }		
 
-/* MONITOR function lift_has_arrived: shall be called by the lift task
-   when the lift has arrived at the next floor. This function indicates
-   to other tasks that the lift has arrived, and then waits until the lift
-   shall move again. */
-void lift_has_arrived(lift_type lift)
-{
-	
-	/* Kolla om nån ska på eller av */
-	if (n_passengers_on_floor(lift, lift->floor) || (n_passengers_to_floor(lift, lift->floor)))
-		{
-			/* Berätta för alla att hissen är på ny våning */
-			si_cv_broadcast(&lift->change);
-	
-			/* Vänta i så fall ett tag på våningen */
-			si_wait_n_ms(TIME_ON_FLOOR);
-		}
-}
-
 /* --- functions related to lift task END --- */
 
 
@@ -305,7 +281,7 @@ void leave_floor(lift_type lift, int id, int enter_floor)
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-static void leave_lift(lift_type lift, int id)
+void leave_lift(lift_type lift, int id)
 {
     int i; 
     int lift_index; 
@@ -333,7 +309,7 @@ static void leave_lift(lift_type lift, int id)
 
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
-static void enter_lift(lift_type lift, int id, int to_floor)
+void enter_lift(lift_type lift, int id, int to_floor)
 {
     int i; 
     int lift_index; 
@@ -362,7 +338,7 @@ static void enter_lift(lift_type lift, int id, int to_floor)
 
 /* MONITOR function lift_travel: performs a journey with the lift
    starting at from_floor, and ending at to_floor */ 
-void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
+void lift_travel(lift_type lift, int id, int from_floor, int to_floor)//TODO
 {
     int boarded = 0;
     int arrived = 0;
@@ -414,6 +390,33 @@ int id_to_task_id(int id)
 {
     return id + TASK_ID_FIRST_PERSON; 
 }
+
+/* n_passengers_to_leave: returns the number of passengers in the 
+   lift having the destination floor equal to floor */
+int n_passengers_to_leave(lift_type lift, int floor)
+{
+//TODO
+} 
+
+/* n_persons_to_enter: returns the number of persons standing on 
+   floor floor */ 
+int n_persons_to_enter(lift_type lift, int floor)
+{
+//TODO
+} 
+
+/* lift_is_full: returns nonzero if the lift is full, returns zero 
+   otherwise */ 
+int lift_is_full(lift_type lift)
+{
+//TODO
+}  
+
+/* get_current_floor: returns the floor on which the lift is positioned */ 
+int get_current_floor(lift_type lift)
+{
+//TODO
+} 
 
 /* --- functions related to person task END --- */
 
