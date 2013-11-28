@@ -54,21 +54,39 @@ void passenger_task(void)
 	int current;
 	int from;
 	int to;
+	person_data_type person;
+
 
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);
 	
-	current = random_level();
-    
+	current = random_level();	
+
 	while (1)
     {
-	from = current;
-	to = random_level();
-	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
-	lift_travel(mainlift, id, from, to);
-	current = to;
-	printf("Passenger %d arrived at %d.\n", id, current);
-	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
+    	from = current;
+    	to = random_level();
+    	
+    	person = (person_data_type) {id, to};
+    	
+    	si_sem_wait(&mainlift->mutex);
+    	mainlift->persons_to_enter[current][id] = person;
+    	si_sem_signal(&mainlift->mutex);
+
+    	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
+    	
+    	lift_travel(mainlift, id, from, to);
+    	current = to;
+
+    	printf("Passenger %d arrived at %d.\n", id, current);
+    	
+    	si_sem_wait(&mainlift->mutex);
+    	person=(person_data_type) {NO_ID, NO_FLOOR};
+    	mainlift->persons_to_enter[current][id] = person;
+    	si_sem_signal(&mainlift->mutex);
+    	
+    	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
+    
     }
 }
 

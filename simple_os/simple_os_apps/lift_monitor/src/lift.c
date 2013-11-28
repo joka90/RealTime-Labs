@@ -243,6 +243,7 @@ static int passenger_wait_for_lift(lift_type lift, int wait_floor)
     return !waiting_ready;
 }
 
+
 /* enter_floor: makes a person with id id stand at floor floor */ 
 static void enter_floor(
     lift_type lift, int id, int floor)
@@ -276,29 +277,87 @@ static void enter_floor(
    enter_floor */ 
 static void leave_floor(lift_type lift, int id, int enter_floor)
 {
+    int i;
+    int floor_index;
+    int found;
+
+    /* leave the floor */
+    found = 0;
+    for (i = 0; i < MAX_N_PERSONS && !found; i++)
+    {
+        if (lift->persons_to_enter[enter_floor][i].id == id)
+        {
+            found = 1;
+            floor_index = i;
+        }
+    }
+        
+    if (!found)
+    {
+        lift_panic("cannot leave floor");
+    }
+
+    /* leave floor at index floor_index */
+    lift->persons_to_enter[enter_floor][floor_index].id = NO_ID;
+    lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR;
+}
+
+/* leave_floor: makes a person with id id at enter_floor leave 
+   enter_floor */ 
+static void leave_lift(lift_type lift, int id)
+{
     int i; 
-    int floor_index; 
+    int lift_index; 
     int found; 
 
     /* leave the floor */
     found = 0; 
     for (i = 0; i < MAX_N_PERSONS && !found; i++)
     {
-        if (lift->persons_to_enter[enter_floor][i].id == id)
+        if (lift->passengers_in_lift[i].id == id)
         {
             found = 1; 
-            floor_index = i; 
+            lift_index = i; 
         }
     }
         
     if (!found)
     {
-        lift_panic("cannot leave floor"); 
+        lift_panic("cannot leave lift"); 
     }
-
+    person_data_type person;
+    person = (person_data_type) {NO_ID, NO_FLOOR};
     /* leave floor at index floor_index */ 
-    lift->persons_to_enter[enter_floor][floor_index].id = NO_ID; 
-    lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR; 
+    lift->passengers_in_lift[lift_index] = person;
+}
+
+
+/* enter_floor: makes a person with id id stand at floor floor */ 
+static void enter_lift(lift_type lift, int id, int to_floor)
+{
+    int i; 
+    int lift_index; 
+    int found; 
+
+    /* stand at floor */ 
+    found = 0; 
+    for (i = 0; i < MAX_N_PERSONS && !found; i++)
+    {
+        if (lift->passengers_in_lift[i].id == NO_ID)
+        {
+            found = 1; 
+            lift_index = i; 
+        }
+    }
+        
+    if (!found)
+    {
+        lift_panic("cannot enter lift"); 
+    }
+    person_data_type person;
+    person = (person_data_type) {id, to_floor};
+    /* enter floor at index floor_index */ 
+    lift->passengers_in_lift[lift_index] = person;
 }
 
 /* MONITOR function lift_travel: performs a journey with the lift
@@ -306,10 +365,43 @@ static void leave_floor(lift_type lift, int id, int enter_floor)
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 {
     int in_lift;
-    int not_arrived = 0;
+    int boarded = 0;
+    int arrived = 0;
+    person_data_type person;
+    person = (person_data_type) {id, to_floor};
     
-    while (not_arrived)
+    
+    while (!boarded)
     {
+        si_sem_wait(&lift->mutex);
+        si_cv_wait(&lift->change);
+                    printf("Passenger %d  from %d to %d.\n", person.id, from_floor, person.to_floor);
+        if (!passenger_wait_for_lift(lift, from_floor))
+        {
+            leave_floor(lift, id, from_floor);
+            //lift->passengers_in_lift[id] = person;
+            enter_lift(lift, id, to_floor);
+            boarded = 1;
+        }
+        si_sem_signal(&lift->mutex);
+    }
+    
+    while (!arrived)
+    {
+        si_sem_wait(&lift->mutex);
+        si_cv_wait(&lift->change);
+        
+                    printf("Passenger %d  from %d to %d.\n", person.id, from_floor, person.to_floor);
+        if (lift->floor == to_floor)
+        {
+            leave_lift(lift, id);
+            enter_floor(lift, id, to_floor);
+            //person = (person_data_type) {NO_ID, NO_FLOOR};
+            //lift->passengers_in_lift[id] = person;
+            
+            arrived = 1;
+        }
+        si_sem_signal(&lift->mutex);        
     }
 }
 

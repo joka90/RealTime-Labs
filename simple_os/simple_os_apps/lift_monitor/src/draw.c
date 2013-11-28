@@ -53,6 +53,8 @@ void draw_lift(lift_type lift)
             sprintf(message, "%d   %d", 
                     lift->passengers_in_lift[i].id, 
                     lift->passengers_in_lift[i].to_floor); 
+            printf("Passenger %d  to %d.\n",lift->passengers_in_lift[i].id, 
+                    lift->passengers_in_lift[i].to_floor); 
             si_ui_draw_string(message, xLift + i*cxGubbe + id_x_offset, 
                             yLift[lift->floor] - cyGubbe + delta_y_Gubbe + id_y_offset);
         }
