@@ -156,4 +156,6 @@ int lift_is_full(lift_type lift);
 
 int id_to_task_id(int id);
 
+void lift_has_arrived(lift_type lift);
+
 #endif

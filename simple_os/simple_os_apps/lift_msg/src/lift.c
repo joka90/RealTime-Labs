@@ -317,37 +317,24 @@ void enter_lift(lift_type lift, int id, int to_floor)
     lift->passengers_in_lift[lift_index].to_floor = to_floor; 
 }
 
-/* MONITOR function lift_travel: performs a journey with the lift
-   starting at from_floor, and ending at to_floor */ 
-void lift_travel(lift_type lift, int id, int from_floor, int to_floor)//TODO
+
+void lift_has_arrived(lift_type lift)
 {
-    int boarded = 0;
-    int arrived = 0;
+/*
 
-    
-    while (!boarded)
-    {
-        printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
-        if (!passenger_wait_for_lift(lift, from_floor))
-        {
-            leave_floor(lift, id, from_floor);
-            enter_lift(lift, id, to_floor);
-            boarded = 1;
-        }
-    }
-    
-    while (!arrived)
-    {
-        printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
-        if (lift->floor == to_floor)
-        {
-            leave_lift(lift, id);
-            enter_floor(lift, id, to_floor);
+typedef struct
+{
+    int floor; 
 
-            
-            arrived = 1;
-        }
-    }
+    int up;
+
+   -> person_data_type persons_to_enter[N_FLOORS][MAX_N_PERSONS];
+
+   -> person_data_type passengers_in_lift[MAX_N_PASSENGERS];
+
+} lift_data_type;
+
+*/
 }
 
 /* TASK_ID_FIRST_PERSON is the task_id of the first person. It assumes creation of 
