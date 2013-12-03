@@ -83,10 +83,7 @@ void lift_delete(lift_type lift)
    shall be changed */
 void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)//TODO
 {
-   
-    /* reserve lift */ 
-    si_sem_wait(&lift->mutex);
-	
+   	
 	if (lift->up)
 	{
 		if (lift->floor == N_FLOORS-1)
@@ -109,29 +106,16 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)//TO
 		}
 	}
 	
-	/* release lift */ 
-    si_sem_signal(&lift->mutex); 
 }
 
 void lift_move(lift_type lift, int next_floor, int change_direction)//TODO
 {
-    /* reserve lift */ 
-    si_sem_wait(&lift->mutex); 
 
-    /* the lift is moving */ 
-    lift->moving = 1; 
-        
-    /* release lift */ 
-    si_sem_signal(&lift->mutex); 
         
     /* it takes two seconds to move to the next floor */ 
     si_wait_n_ms(TIME_BETWEEN_FLOORS); 
         
-    /* reserve lift */ 
-    si_sem_wait(&lift->mutex); 
-        
-    /* the lift is not moving */ 
-    lift->moving = 0; 
+      
 
     /* the lift has arrived at next_floor */ 
     lift->floor = next_floor; 
@@ -145,8 +129,7 @@ void lift_move(lift_type lift, int next_floor, int change_direction)//TODO
     /* draw, since a change has occurred */ 
     draw_lift(lift); 
 
-    /* release lift */ 
-    si_sem_signal(&lift->mutex); 
+
 }
 
 /* this function is used also by the person tasks */ 
@@ -210,8 +193,6 @@ static int n_passengers_on_floor(lift_type lift, int floor)
 static int passenger_wait_for_lift(lift_type lift, int wait_floor)
 {
     int waiting_ready =
-        /* the lift is not moving */ 
-        !lift->moving && 
         /* and the lift is at wait_floor */ 
         lift->floor == wait_floor && 
         /* and the lift is not full */ 
@@ -346,24 +327,18 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)//TODO
     
     while (!boarded)
     {
-        si_sem_wait(&lift->mutex);
-        si_cv_wait(&lift->change);
-                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
+        printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (!passenger_wait_for_lift(lift, from_floor))
         {
             leave_floor(lift, id, from_floor);
             enter_lift(lift, id, to_floor);
             boarded = 1;
         }
-        si_sem_signal(&lift->mutex);
     }
     
     while (!arrived)
     {
-        si_sem_wait(&lift->mutex);
-        si_cv_wait(&lift->change);
-        
-                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
+        printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (lift->floor == to_floor)
         {
             leave_lift(lift, id);
@@ -372,7 +347,6 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)//TODO
             
             arrived = 1;
         }
-        si_sem_signal(&lift->mutex);        
     }
 }
 

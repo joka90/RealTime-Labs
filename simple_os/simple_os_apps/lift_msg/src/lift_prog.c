@@ -22,6 +22,9 @@ stack_item User_Stack[STACK_SIZE];
 /* stack for lift_task */ 
 stack_item Lift_Stack[STACK_SIZE]; 
 
+/* stack for move_lift_task */ 
+stack_item Move_Lift_Stack[STACK_SIZE]; 
+
 /* Stacks for passenger tasks */
 stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
@@ -61,8 +64,17 @@ void passenger_task(void)//TODO
 	int current;
 	int from;
 	int to;
+	
+	int arrived;
 
     message_data_type msg;
+	
+	/* message för att be om hisstur */
+	message_data_type travel_msg;
+	travel_msg.type = TRAVEL_MESSAGE;
+	travel_msg.id = id;
+	
+	
 
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg
@@ -73,39 +85,31 @@ void passenger_task(void)//TODO
 
 	while (1)
     {
-        si_message_receive((char *) &msg, &length, &send_task_id);//TODO ta emot msg
-    	from = current;
-    	to = random_level();
-        //TODO tolka message
-        if(msg.type == TRAVEL_DONE_MESSAGE)
-        {
-/* a travel done message is sent to a person task when 
-   a lift travel is finished */ 
-//#define TRAVEL_DONE_MESSAGE 2
-        }
+		arrived = 0;
+		from = current;
+        to = random_level();
+		
+	    travel_msg.from_floor = from;
+    	travel_msg.to_floor = to;
+		
+		si_message_send((char *) &travel_msg, sizeof(travel_msg), id);
 
-    	
- /*   	si_sem_wait(&mainlift->mutex);
-        enter_floor(mainlift,id, current);//spawna
-    	si_sem_signal(&mainlift->mutex);
-
-    	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
-    	
-    	lift_travel(mainlift, id, from, to);//res
-    	current = to;
-
-    	printf("Passenger %d arrived at %d.\n", id, current);
-    	
-    	si_sem_wait(&mainlift->mutex);
-
-        leave_floor(mainlift, id, current);//ta bort från våning
-
-    	si_sem_signal(&mainlift->mutex);
-    	
-    	si_wait_n_ms(TIME_TO_NEW_JOURNEY);*/
+		while(arrived == 0)
+		{
+			si_message_receive((char *) &msg, &length, &send_task_id);
+			
+			if(msg.type == TRAVEL_DONE_MESSAGE)
+			{
+				arrived = 1;
+			}
+		}
+		
+		current = to;
+		si_wait_n_ms(TIME_TO_NEW_JOURNEY);
     
     }
 }
+
 
 /* There shall be one task, called lift_task, for the lift.  */
 void lift_task(void)//TODO
@@ -119,9 +123,6 @@ void lift_task(void)//TODO
     message_data_type msg;
 
 	draw_lift(mainlift);
-
-
-
 
 
     while (1)

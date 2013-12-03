@@ -19,73 +19,62 @@
 #define TIME_ON_FLOOR 400
 #define TIME_TO_NEW_JOURNEY 5000
 
-/* easier to read words */
 #define UP 1
 #define DOWN 0
 
-/* fig_begin person_data_type */ 
-/* data structure for person information */ 
-typedef struct
-{
-    /* identity */ 
-    int id; 
-    /* destination floor */ 
-    int to_floor; 
-} person_data_type; 
-/* fig_end person_data_type */ 
-
-/* message types for lift simulation */ 
-
-/* a move message is sent to the lift task when the 
-   lift shall move to the next floor */ 
-#define MOVE_MESSAGE 0
-
-/* a travel message is sent to the lift task when a 
-   person would like to make a lift travel */ 
-#define TRAVEL_MESSAGE 1
-
-/* a travel done message is sent to a person task when 
-   a lift travel is finished */ 
-#define TRAVEL_DONE_MESSAGE 2
-
-/* data structure for messages */ 
-typedef struct
-{
-    /* message type */
-    int type; 
-    /* person id */ 
-    int id; 
-    /* source and destination of lift travel */ 
-    int from_floor; 
-    int to_floor; 
-} message_data_type; 
-
-
-/* special numbers, to define no identity and no destination */ 
 #define NO_ID -1
 #define NO_FLOOR -1
 
-/* definition of data type for lift */
+#define MOVE_MESSAGE 0
+#define TRAVEL_MESSAGE 1
+#define TRAVEL_DONE_MESSAGE 2
+
+#define LIFT_PRIORITY 5
+#define MOVE_LIFT_PRIORITY 10
+#define USER_PRIORITY 15
+
+
+
 
 typedef struct
 {
-    /* the floor where the lift is positioned */ 
+     int id; 
+     int to_floor; 
+
+} person_data_type; 
+
+
+
+typedef struct
+{
+    int type; 
+
+    int id; 
+
+    int from_floor; 
+    int to_floor; 
+	
+} message_data_type; 
+
+
+
+
+
+
+typedef struct
+{
     int floor; 
 
-    /* variable to indicate if the lift is travelling in the up 
-       direction, which is defined as the direction where the 
-       floor number is increasing */
     int up;
 
-    /* persons on each floor waiting to enter */ 
     person_data_type persons_to_enter[N_FLOORS][MAX_N_PERSONS];
 
-    /* passengers in the lift */
     person_data_type passengers_in_lift[MAX_N_PASSENGERS];
 
 } lift_data_type;
 
 typedef lift_data_type* lift_type;
+
 
 
 /* lift_create: creates and initialises a variable of type lift_type */
