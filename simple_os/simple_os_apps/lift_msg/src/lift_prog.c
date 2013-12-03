@@ -127,25 +127,21 @@ void lift_task(void)//TODO
 
     while (1)
     {
-	
         si_message_receive((char *) &msg, &length, &send_task_id);
 
-        //TODO tolka message
         if(msg.type == MOVE_MESSAGE)
         {
-/* a move message is sent to the lift task when the 
-   lift shall move to the next floor */ 
+			lift_next_floor(mainlift, &next, &dirchange);
+			lift_move(mainlift, next, dirchange);
+			/*lift_has_arrived(mainlift);*/
         }
         else if(msg.type == TRAVEL_MESSAGE)
         {
 /* a travel message is sent to the lift task when a 
    person would like to make a lift travel */ 
         }
-
-	    /*lift_next_floor(mainlift, &next, &dirchange);
-	    lift_move(mainlift, next, dirchange);
-	    lift_has_arrived(mainlift);*/
-	
+		
+		draw_lift(mainlift);
     }
 
 }
@@ -211,7 +207,7 @@ void move_lift_task(void)
         si_message_send((char *) &message, sizeof(message), Lift_Task_Id); 
 
         /* it takes two seconds to move to the next floor */ 
-        si_wait_n_ms(2000); 
+        si_wait_n_ms(TIME_BETWEEN_FLOORS); 
     }
 }
 
