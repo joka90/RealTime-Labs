@@ -85,6 +85,9 @@ void passenger_task(void)//TODO
 
 	while (1)
     {
+	
+		enter_floor(mainlift, id, current);
+		
 		arrived = 0;
 		from = current;
         to = random_level();
@@ -104,7 +107,10 @@ void passenger_task(void)//TODO
 			}
 		}
 		
+		
 		current = to;
+		leave_floor(mainlift, id, current);
+		
 		si_wait_n_ms(TIME_TO_NEW_JOURNEY);
     
     }
