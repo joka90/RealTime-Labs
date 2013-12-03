@@ -357,7 +357,6 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)//TODO
 3. user task, task_id 2
 
 */ 
-#define TASK_ID_FIRST_PERSON 3
 
 /* id_to_task_id: convert id to task_id */ 
 int id_to_task_id(int id)

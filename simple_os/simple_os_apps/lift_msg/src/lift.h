@@ -14,6 +14,8 @@
 #define MAX_N_PASSENGERS 5
 /* fig_end lift_h_defs */ 
 
+#define TASK_ID_FIRST_PERSON 4
+
 /* times in ms */
 #define TIME_BETWEEN_FLOORS 800
 #define TIME_ON_FLOOR 400

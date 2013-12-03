@@ -79,7 +79,7 @@ void passenger_task(void)//TODO
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg
 
-
+	printf("Person %d spawned as task %d \n", id, id_to_task_id(id));
 	
 	current = random_level();	
 
@@ -97,7 +97,7 @@ void passenger_task(void)//TODO
 		
 		si_message_send((char *) &travel_msg, sizeof(travel_msg), id);
 
-		while(arrived == 0)
+		while(!arrived)
 		{
 			si_message_receive((char *) &msg, &length, &send_task_id);
 			
@@ -172,7 +172,7 @@ void user_task(void)//TODO
         /* check if it is a set time message */ 
         if (strncmp(message, "new", 3) == 0)
         {
-		printf("blaba!!!!\n");
+		/*printf("Spawning...\n");*/
 			if (n_persons == MAX_N_PERSONS)
 			{
 				si_ui_show_error("Failure to comply: Overpopulation!");
@@ -180,9 +180,13 @@ void user_task(void)//TODO
 			
 				int id = n_persons++;
 				si_task_create(passenger_task, &Passenger_Stack[id][STACK_SIZE-1], 17);//SAMMA som innan
-			
+				
+				/*printf("Created task...\n");*/
+				
 				/* send id message to created task */ 
 				si_message_send((char *) &id, sizeof(int), id_to_task_id(id)); 
+				
+				/*printf("Sent ID %d to task...\n",id_to_task_id(id));*/
 			}
         }
         /* check if it is an exit message */ 
@@ -259,7 +263,7 @@ int main(void)
 
     User_Task_Id = 3; 
 
-    Lowest_Passenger_Task_Id = 4;
+    Lowest_Passenger_Task_Id = TASK_ID_FIRST_PERSON;
  
     /* start the kernel */ 
     si_kernel_start(); 
