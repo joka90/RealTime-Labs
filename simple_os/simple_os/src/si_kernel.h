@@ -38,4 +38,8 @@ void si_task_create(
     void (*task_function)(void), 
     stack_item *stack_bottom, int priority); 
 
+int si_task_create_task_id(
+    void (*task_function)(void), 
+    stack_item *stack_bottom, int priority);
+	
 #endif

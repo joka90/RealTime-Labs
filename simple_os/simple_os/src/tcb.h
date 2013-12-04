@@ -23,6 +23,16 @@
 
 #include "arch_types.h"
 
+/* tasks with priorities above this 
+   value are considered as time-shared tasks, 
+   otherwise they are considered as 
+   real-time tasks */ 
+#define TIME_SHARED_PRIORITY_BASE 20
+
+/* maximum ticks a time-shared task is allowed 
+   to run in one go */ 
+#define MAX_RUN_TICKS 100
+
 /* fig_begin tcb_def */ 
 /* type definition for a task control block */
 typedef struct
@@ -62,5 +72,6 @@ void tcb_set_task_id(task_control_block *tcb, int task_id);
 /* tcb_set_wait_ticks: sets wait_ticks in *tcb to wait_ticks */
 void tcb_set_wait_ticks(task_control_block *tcb, int wait_ticks); 
 
+int tcb_is_real_time_task(task_control_block *tcb);
 #endif
 

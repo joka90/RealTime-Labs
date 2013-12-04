@@ -71,4 +71,23 @@ void ready_list_remove(int task_id)
     task_id_list_remove(Ready_List, READY_LIST_SIZE, task_id); 
 }
 
+/* ready_list_has_real_time_task: determines if the ready list 
+   has a real-time task */ 
+int ready_list_has_real_time_task(void)
+{
+    /* a pointer to a TCB, to be used as a pointer
+       to the common TCB list */
+    task_control_block *tcb_list_ref;
+
+    int has_real_time_task; 
+ 
+    /* get a pointer to the common TCB list */
+    tcb_list_ref = tcb_storage_get_tcb_list_ref();
+
+    has_real_time_task = tcb_list_has_real_time_task(
+        tcb_list_ref, tcb_storage_get_tcb_list_size(),
+        Ready_List, READY_LIST_SIZE);
+
+    return has_real_time_task; 
+}
 
