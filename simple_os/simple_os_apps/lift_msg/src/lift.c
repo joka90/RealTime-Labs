@@ -310,8 +310,8 @@ void enter_lift(lift_type lift, int floor, int max_enterers)
                 {
                     found_enterer = 1; 
                   
-                    lift->passengers_in_lift[j].id = lift->persons_to_enter[floor][j].id; 
-                    lift->passengers_in_lift[j].to_floor = lift->persons_to_enter[floor][j].to_floor;
+                    lift->passengers_in_lift[i].id = lift->persons_to_enter[floor][j].id; 
+                    lift->passengers_in_lift[i].to_floor = lift->persons_to_enter[floor][j].to_floor;
                     
                     lift->persons_to_enter[floor][j].id = NO_ID; 
                     lift->persons_to_enter[floor][j].to_floor = NO_FLOOR;

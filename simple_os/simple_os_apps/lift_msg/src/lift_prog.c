@@ -69,10 +69,7 @@ void passenger_task(void)//TODO
 
     message_data_type msg;
 	
-	/* message för att be om hisstur */
-	message_data_type travel_msg;
-	travel_msg.type = TRAVEL_MESSAGE;
-	travel_msg.id = id;
+
 	
 	
 
@@ -80,6 +77,11 @@ void passenger_task(void)//TODO
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg
 
 	printf("Person %d spawned as task %d \n", id, id_to_task_id(id));
+
+	/* message för att be om hisstur */
+	message_data_type travel_msg;
+	travel_msg.type = TRAVEL_MESSAGE;
+	travel_msg.id = id;
 	
 	current = random_level();	
 
