@@ -260,8 +260,7 @@ void leave_floor(lift_type lift, int id, int enter_floor)
     lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR;
 }
 
-/* leave_floor: makes a person with id id at enter_floor leave 
-   enter_floor */ 
+
 void leave_lift(lift_type lift, int id)
 {
     int i; 
@@ -289,32 +288,44 @@ void leave_lift(lift_type lift, int id)
 }
 
 
-/* enter_floor: makes a person with id id stand at floor floor */ 
-void enter_lift(lift_type lift, int id, int to_floor)
+void enter_lift(lift_type lift, int floor, int max_enterers)
 {
     int i; 
-    int lift_index; 
-    int found; 
+    int j;
 
-    /* stand at floor */ 
-    found = 0; 
-    for (i = 0; i < MAX_N_PERSONS && !found; i++)
+    int has_entered;
+    
+    int found_enterer; 
+
+
+    has_entered = 0;
+    
+    for (i = 0; i < MAX_N_PASSENGERS && has_entered < max_enterers; i++)
     {
         if (lift->passengers_in_lift[i].id == NO_ID)
         {
-            found = 1; 
-            lift_index = i; 
+        
+            found_enterer = 0;
+            
+            for (j = 0; j < MAX_N_PERSONS && !found_enterer; j++)
+            {
+                if(lift->persons_to_enter[floor][j].id != NO_ID 
+                   && lift->persons_to_enter[floor][j].to_floor != NO_FLOOR)
+                {
+                    found_enterer = 1; 
+                  
+                    lift->passengers_in_lift[j].id = lift->persons_to_enter[floor][j].id; 
+                    lift->passengers_in_lift[j].to_floor = lift->persons_to_enter[floor][j].to_floor;
+                    
+                    lift->persons_to_enter[floor][j].id = NO_ID; 
+                    lift->persons_to_enter[floor][j].to_floor = NO_FLOOR;
+                    
+                    has_entered++;
+                }
+            }           
+   
         }
     }
-        
-    if (!found)
-    {
-        lift_panic("cannot enter lift"); 
-    }
-
-    /* enter floor at index floor_index */ 
-    lift->passengers_in_lift[lift_index].id = id; 
-    lift->passengers_in_lift[lift_index].to_floor = to_floor; 
 }
 
 
