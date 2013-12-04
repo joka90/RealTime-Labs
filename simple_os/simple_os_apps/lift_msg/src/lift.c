@@ -204,7 +204,7 @@ static int passenger_wait_for_lift(lift_type lift, int wait_floor)
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
 void enter_floor(
-    lift_type lift, int id, int floor)
+    lift_type lift, int id, int floor, int tofloor)
 {
     int i; 
     int floor_index; 
@@ -228,7 +228,7 @@ void enter_floor(
 
     /* enter floor at index floor_index */ 
     lift->persons_to_enter[floor][floor_index].id = id; 
-    lift->persons_to_enter[floor][floor_index].to_floor = NO_FLOOR; 
+    lift->persons_to_enter[floor][floor_index].to_floor = tofloor; 
 }
 
 /* leave_floor: makes a person with id id at enter_floor leave 
@@ -262,20 +262,22 @@ void leave_floor(lift_type lift, int id, int enter_floor)
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-void leave_lift(lift_type lift, int id)
+void leave_lift(lift_type lift, int to_floor)
 {
     int i; 
     int lift_index; 
-    int found; 
+
 
     /* leave the floor */
     found = 0; 
-    for (i = 0; i < MAX_N_PERSONS && !found; i++)
+    for (i = 0; i < MAX_N_PASSANGERS; i++)
     {
-        if (lift->passengers_in_lift[i].id == id)
+        if (lift->passengers_in_lift[i].to_floor == to_floor)
         {
-            found = 1; 
-            lift_index = i; 
+            enter_floor(lift, lift->passengers_in_lift[i].id, lift->passengers_in_lift[i].to_floor, NO_FLOOR);
+            //leave lift
+            lift->passengers_in_lift[i].id = NO_ID; 
+            lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
         }
     }
         
@@ -284,8 +286,7 @@ void leave_lift(lift_type lift, int id)
         lift_panic("cannot leave lift"); 
     }
 
-    lift->passengers_in_lift[lift_index ].id = NO_ID; 
-    lift->passengers_in_lift[lift_index ].to_floor = NO_FLOOR; 
+
 }
 
 
@@ -320,6 +321,13 @@ void enter_lift(lift_type lift, int id, int to_floor)
 
 void lift_has_arrived(lift_type lift)
 {
+
+    int vill_kliva_av = n_passengers_to_floor(lift, lift->floor);
+    int vill_kliva_pa = n_passengers_on_floor(lift, lift->floor);
+    int i_hissen = n_passengers_in_lift(lift);
+    
+
+    leave_lift(lift, lift->floor);
 /*
 
 typedef struct

@@ -138,7 +138,7 @@ void leave_floor(lift_type lift, int id, int enter_floor);
 void enter_floor(lift_type lift, int id, int floor);
 
 
-void leave_lift(lift_type lift, int id);
+void leave_lift(lift_type lift, int to_floor);
 void enter_lift(lift_type lift, int id, int to_floor);
 
 
