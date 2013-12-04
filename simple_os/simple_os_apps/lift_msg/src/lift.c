@@ -260,32 +260,26 @@ void leave_floor(lift_type lift, int id, int enter_floor)
     lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR;
 }
 
-/* leave_floor: makes a person with id id at enter_floor leave 
-   enter_floor */ 
+
 void leave_lift(lift_type lift, int to_floor)
 {
     int i; 
     int lift_index; 
-
+	message_data_type travel_msg;
+	travel_msg.type = TRAVEL_DONE_MESSAGE;
 
     /* leave the floor */
-    found = 0; 
-    for (i = 0; i < MAX_N_PASSANGERS; i++)
+    for (i = 0; i < MAX_N_PASSENGERS; i++)
     {
         if (lift->passengers_in_lift[i].to_floor == to_floor)
         {
-            enter_floor(lift, lift->passengers_in_lift[i].id, lift->passengers_in_lift[i].to_floor, NO_FLOOR);
+            //enter_floor(lift, lift->passengers_in_lift[i].id, lift->passengers_in_lift[i].to_floor, NO_FLOOR);
+            si_message_send((char *) &travel_msg, sizeof(travel_msg), id_to_task_id(lift->passengers_in_lift[i].id)); 
             //leave lift
             lift->passengers_in_lift[i].id = NO_ID; 
             lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
         }
     }
-        
-    if (!found)
-    {
-        lift_panic("cannot leave lift"); 
-    }
-
 
 }
 
@@ -334,27 +328,9 @@ void enter_lift(lift_type lift, int floor, int max_enterers)
 void lift_has_arrived(lift_type lift)
 {
 
-    int vill_kliva_av = n_passengers_to_floor(lift, lift->floor);
-    int vill_kliva_pa = n_passengers_on_floor(lift, lift->floor);
-    int i_hissen = n_passengers_in_lift(lift);
-    
-
     leave_lift(lift, lift->floor);
-/*
-
-typedef struct
-{
-    int floor; 
-
-    int up;
-
-   -> person_data_type persons_to_enter[N_FLOORS][MAX_N_PERSONS];
-
-   -> person_data_type passengers_in_lift[MAX_N_PASSENGERS];
-
-} lift_data_type;
-
-*/
+    int i_hissen = n_passengers_in_lift(lift);
+    enter_lift(lift, lift->floor, MAX_N_PASSENGERS - i_hissen);
 }
 
 /* TASK_ID_FIRST_PERSON is the task_id of the first person. It assumes creation of 

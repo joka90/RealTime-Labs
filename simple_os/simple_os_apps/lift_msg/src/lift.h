@@ -135,7 +135,7 @@ void user_task(void);
 void leave_floor(lift_type lift, int id, int enter_floor);
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
-void enter_floor(lift_type lift, int id, int floor);
+void enter_floor(lift_type lift, int id, int floor, int tofloor);
 
 
 void leave_lift(lift_type lift, int to_floor);

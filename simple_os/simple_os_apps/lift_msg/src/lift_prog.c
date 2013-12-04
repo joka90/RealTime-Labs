@@ -138,13 +138,13 @@ void lift_task(void)//TODO
         {
 			lift_next_floor(mainlift, &next, &dirchange);
 			lift_move(mainlift, next, dirchange);
-			/*lift_has_arrived(mainlift);*/
+			lift_has_arrived(mainlift);
         }
         else if(msg.type == TRAVEL_MESSAGE)
         {
             /* a travel message is sent to the lift task when a 
                person would like to make a lift travel */ 
-		    enter_floor(mainlift, travel_msg.id, travel_msg.from_floor, travel_msg.to_floor);
+		    enter_floor(mainlift, msg.id, msg.from_floor, msg.to_floor);
         }
 		
 		draw_lift(mainlift);
