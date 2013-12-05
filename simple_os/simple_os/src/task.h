@@ -45,4 +45,10 @@ void task_start(int task_id);
    task task_id_new */ 
 void task_switch(int task_id_old, int task_id_new); 
 
+int task_get_prio(int task_id);
+
+int task_get_ticks(int task_id);
+
+task_increment_ticks(int task_id);
+
 #endif

@@ -68,10 +68,6 @@ void passenger_task(void)//TODO
 	int arrived;
 
     message_data_type msg;
-	
-
-	
-	
 
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg

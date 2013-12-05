@@ -36,7 +36,9 @@ typedef struct
     /* waiting time in ticks */ 
     int wait_ticks; 
     /* priority */ 
-    int priority; 
+    int priority;
+    /* */
+    int run_ticks;
 } task_control_block;
 /* fig_end tcb_def */ 
 

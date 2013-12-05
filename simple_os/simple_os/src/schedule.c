@@ -27,7 +27,7 @@
 
 /* fig_begin schedule */ 
 /* schedule: perform priority based scheduling */ 
-void schedule(void)
+void schedule(void)//TODO
 {
     /* task id for the running task */ 
     int task_id_running; 
@@ -42,17 +42,52 @@ void schedule(void)
     /* get task id for task in ready list with 
        highest priority */ 
     task_id_highest_prio = 
-        ready_list_get_task_id_highest_prio(); 
+        ready_list_get_task_id_highest_prio();
+    
 
-    /* check if a task switch shall be performed */ 
-    if (task_id_highest_prio != task_id_running)
+    //IF CURRENT TASK is not realtime task: INCREMENT TICKS
+    if(task_get_prio(task_id_running) => TIME_SHARED_PRIORITY_BASE)
     {
-        /* perform task switch */ 
-        task_switch(task_id_running, task_id_highest_prio); 
+        task_increment_ticks(task_id_running);
     }
-    else
+    else//we have a realtime task
     {
-        return; /* no task switch */
+        /* check if a task switch shall be performed */ 
+        if (task_id_highest_prio != task_id_running)
+        {
+            /* perform task switch */ 
+            task_switch(task_id_running, task_id_highest_prio);
+            return; 
+        }
+        else
+        {
+            /* no task switch */
+            return; 
+        }
     }
+//int task_get_prio(int task_id);
+
+//int task_get_ticks(int task_id);
+
+    if (MAX_RUN_TICKS < task_get_ticks(task_id_running))
+    {
+        int idleast, ticksleast; 
+        //get leas ticks and prio id
+        ready_list_get_task_id_and_least_ticks(&idleast, &ticksleast);
+        //TODO NEXT TIME
+/*
+kolla om least är 100, isf nollställ alla.
+annars byt till dem med least.
+
+
+idletask????
+*/
+        
+    }
+
+    //check ticks om v skall byta till annan task.
+
+
+
 }
 /* fig_end schedule */ 

@@ -136,6 +136,71 @@ int tcb_list_get_task_id_highest_prio(
     }
 }
 
+
+void tcb_list_get_task_id_and_least_ticks(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length, int *task_id, int *ticks)
+{
+    /* loop counter for task_id_list */  
+    int task_id_index; 
+    
+    /* current ticks and task_id */ 
+    int current_ticks; 
+    int current_task_id; 
+
+    /* smallest ticks value found */ 
+    int min_ticks_value = MAX_PRIORITY_VALUE; 
+
+    /* task_id for process with smallest ticks value */
+    int task_id_min_ticks_value; 
+
+    /* set to true if no valid task_id and TCB are found */ 
+    int no_valid_task_id_tcb = 1; 
+ 
+    /* go through task_id_list */ 
+    for (task_id_index = 0; task_id_index < task_id_list_length; task_id_index++) 
+    {
+        /* get the task_id */ 
+        current_task_id = task_id_list[task_id_index];
+
+        /* check if valid task_id */  
+        if (current_task_id != TASK_ID_INVALID)
+        {
+            /* check if valid tcb */   
+            if (tcb_is_valid(&tcb_list[current_task_id]))
+            {
+                /* one valid task_id and TCB combination is found */ 
+                if (no_valid_task_id_tcb)
+                {
+                    no_valid_task_id_tcb = 0; 
+                }
+                /* get the ticks */ 
+                current_ticks = tcb_list[current_task_id].run_ticks;
+                /* compare */ 
+                if (current_ticks < min_ticks_value)
+                {
+                    /* a new minumun value is found */ 
+                    min_ticks_value = current_ticks; 
+                    /* record current task_id */ 
+                    task_id_min_ticks_value = current_task_id; 
+                }
+            }
+        }
+    }
+
+    /* return the value found */ 
+    if (no_valid_task_id_tcb)
+    {
+        *task_id=TASK_ID_INVALID; 
+        *ticks=min_ticks_value;
+    }
+    else
+    {
+        *task_id=task_id_min_ticks_value;
+        *ticks=min_ticks_value;
+    }
+}
+
 #include "console.h"
 
 void tcb_list_decrement_timers(

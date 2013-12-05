@@ -164,6 +164,44 @@ void task_start(int task_id)
        TCB */ 
     context_restore(tcb_ref->stack_pointer); 
 }
+
+
+int task_get_prio(int task_id)
+{
+    /* a pointer to a TCB */ 
+    task_control_block *tcb_ref; 
+
+    /* get a pointer to the TCB associated with 
+       task identity task_id */ 
+    tcb_ref = tcb_storage_get_tcb_ref(task_id); 
+
+    return tcb_ref->priority;
+}
+
+int task_get_ticks(int task_id)
+{
+    /* a pointer to a TCB */ 
+    task_control_block *tcb_ref; 
+
+    /* get a pointer to the TCB associated with 
+       task identity task_id */ 
+    tcb_ref = tcb_storage_get_tcb_ref(task_id); 
+
+    return tcb_ref->run_ticks;
+}
+
+int task_increment_ticks(int task_id)
+{
+    /* a pointer to a TCB */ 
+    task_control_block *tcb_ref; 
+
+    /* get a pointer to the TCB associated with 
+       task identity task_id */ 
+    tcb_ref = tcb_storage_get_tcb_ref(task_id); 
+
+    return tcb_ref->run_ticks++;
+}
+
 /* fig_end task_start */ 
 
 /* fig_begin task_switch_soft_kernel */ 

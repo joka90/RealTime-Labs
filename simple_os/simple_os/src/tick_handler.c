@@ -92,7 +92,7 @@ void tick_handler_function(int dummy)
 #endif
 
 #if defined BUILD_ARM_BB || defined BUILD_X86_TARGET 
-void tick_handler_function(void)
+void tick_handler_function(void)//TODO
 #endif 
 
 {
