@@ -46,7 +46,7 @@ void schedule(void)//TODO
     
 
     //IF CURRENT TASK is not realtime task: INCREMENT TICKS
-    if(task_get_prio(task_id_running) => TIME_SHARED_PRIORITY_BASE)
+    if(task_get_prio(task_id_running) >= TIME_SHARED_PRIORITY_BASE)
     {
         task_increment_ticks(task_id_running);
     }

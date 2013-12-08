@@ -51,6 +51,6 @@ int task_get_prio(int task_id);
 
 int task_get_ticks(int task_id);
 
-task_increment_ticks(int task_id);
+int task_increment_ticks(int task_id);
 
 #endif
