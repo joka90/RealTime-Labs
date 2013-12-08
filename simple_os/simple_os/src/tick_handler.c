@@ -140,10 +140,10 @@ void tick_handler_function(void)//TODO
             /* and insert in ready list */ 
             ready_list_insert(new_task_ids_ready[i]); 
         }
-        /* perform scheduling */ 
-        schedule(); 
+        
     }
-
+    /* perform scheduling */ 
+    schedule(); 
 #ifdef BUILD_X86_WIN_HOST 
     
     enable_int_win(); 

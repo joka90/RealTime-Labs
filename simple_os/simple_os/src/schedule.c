@@ -45,49 +45,45 @@ void schedule(void)//TODO
        highest priority */ 
     task_id_highest_prio = 
         ready_list_get_task_id_highest_prio();
-    
 
+    //printf("---- task %d is on the top ----\n", task_id_highest_prio);
     //IF CURRENT TASK is not realtime task: INCREMENT TICKS
     if(task_get_prio(task_id_running) >= TIME_SHARED_PRIORITY_BASE)
     {
         task_increment_ticks(task_id_running);
     }
-    else//we have a realtime task
-    {
-        /* check if a task switch shall be performed */ 
-        if (task_id_highest_prio != task_id_running)
-        {
-            /* perform task switch */ 
-            task_switch(task_id_running, task_id_highest_prio);
-            return; 
-        }
-        else
-        {
-            /* no task switch */
-            return; 
-        }
-    }
-//int task_get_prio(int task_id);
 
-//int task_get_ticks(int task_id);
+    /* check if a task switch shall be performed */ 
+    if (task_id_highest_prio != task_id_running && task_get_prio(task_id_highest_prio) < TIME_SHARED_PRIORITY_BASE)
+    {
+        /* perform task switch */ 
+        task_switch(task_id_running, task_id_highest_prio);//task_switch(int task_id_old, int task_id_new); 
+        return; 
+    }
+
 
     if (MAX_RUN_TICKS < task_get_ticks(task_id_running))
     {
         int idleast, ticksleast; 
         //get leas ticks and prio id
         ready_list_get_task_id_and_least_ticks(&idleast, &ticksleast);
-        //TODO NEXT TIME
-/*
-kolla om least är 100, isf nollställ alla.
-annars byt till dem med least.
-
-
-idletask????
-*/
+        if(ticksleast>=100)
+        {
+           printf("nolla\n");
+            ready_list_zero_ticks();
+           return;
+        }
+        else if(task_id_running == idleast)//byt inte om vi redan är på samma
+        {
+            return;
+        }
+        else//annars byt till dem med least.
+        {
+            /* perform task switch */ 
+            task_switch(task_id_running, idleast);
+        }
         
     }
-
-    //check ticks om v skall byta till annan task.
 
 
 

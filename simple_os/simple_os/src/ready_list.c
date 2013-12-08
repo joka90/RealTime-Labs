@@ -85,6 +85,23 @@ void ready_list_get_task_id_and_least_ticks(int *task_id, int *ticks)
 
 }
 
+void ready_list_zero_ticks(void)
+{
+    /* a pointer to a TCB, to be used as a pointer
+       to the common TCB list */
+    task_control_block *tcb_list_ref;
+
+ 
+    /* get a pointer to the common TCB list */
+    tcb_list_ref = tcb_storage_get_tcb_list_ref();
+
+    /* zero readylist */
+    tcb_list_zero_ticks(
+        tcb_list_ref, tcb_storage_get_tcb_list_size(),
+        Ready_List, READY_LIST_SIZE);
+
+}
+
 
 void ready_list_remove(int task_id)
 {
