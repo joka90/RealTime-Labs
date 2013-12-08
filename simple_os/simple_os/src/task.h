@@ -26,6 +26,8 @@
 /* task_init: intialise the task module */ 
 void task_init(void); 
 
+void task_set_idle_task(int task_id);
+
 /* task_create: creates a task from the function 
    task_function, associates a stack with bottom stack_bottom 
    to the task, and sets the priority to priority. 

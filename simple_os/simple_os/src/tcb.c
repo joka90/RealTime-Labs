@@ -59,3 +59,11 @@ void tcb_set_wait_ticks(task_control_block *tcb, int wait_ticks)
 {
     tcb->wait_ticks = wait_ticks; 
 }
+
+/* tcb_is_real_time_task: checks if the task represented
+   by *tcb is a real-time task - if not, it is a 
+   time-shared task */ 
+int tcb_is_real_time_task(task_control_block *tcb)
+{
+    return tcb->priority < TIME_SHARED_PRIORITY_BASE; 
+}

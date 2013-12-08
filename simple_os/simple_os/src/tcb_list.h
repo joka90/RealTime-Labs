@@ -46,5 +46,12 @@ void tcb_list_get_task_id_and_least_ticks(
     task_control_block tcb_list[], int tcb_list_length, 
     int task_id_list[], int task_id_list_length, int *task_id, int *ticks);
 
+/* tcb_list_has_real_time_task: determines if the task list 
+   represented by task_id_list contains one or more real-time 
+   tasks */ 
+int tcb_list_has_real_time_task(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length);
+	
 #endif
 

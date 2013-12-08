@@ -32,6 +32,16 @@
 /* the running task */ 
 static int Task_Id_Running; 
 
+/* the idle task */ 
+static int Task_Id_Idle;
+
+/* a function to store the task id 
+   of the idle task */ 
+void task_set_idle_task(int task_id)
+{
+    Task_Id_Idle = task_id; 
+}
+
 void task_init(void)
 {
     /* initialise list of all TCBs */ 
