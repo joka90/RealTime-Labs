@@ -23,6 +23,8 @@
 #include "ready_list.h"
 #include "task.h"
 
+#include "tcb.h"
+
 #include "console.h"
 
 /* fig_begin schedule */ 
