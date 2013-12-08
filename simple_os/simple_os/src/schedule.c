@@ -71,10 +71,13 @@ void schedule(void)//TODO
         {
            printf("nolla\n");
             ready_list_zero_ticks();
+            /* perform task switch */ 
+            task_switch(task_id_running, task_id_highest_prio);//task_switch(int task_id_old, int task_id_new); 
            return;
         }
         else if(task_id_running == idleast)//byt inte om vi redan är på samma
         {
+            printf("borde inte vara har\n");
             return;
         }
         else//annars byt till dem med least.
