@@ -201,3 +201,36 @@ void si_task_create(
     }
 }
 
+/* si_task_create_task_id: create a task from the 
+   function task_function, with stack starting at stack_bottom, 
+   and having priority priority, and return the task id of the 
+   created task */ 
+int si_task_create_task_id(
+    void (*task_function)(void), 
+    stack_item *stack_bottom, int priority)
+{
+    /* task_id for created task */ 
+    int task_id; 
+
+    /* disable interrupts if kernel is running */ 
+    if (Kernel_Running)
+    {
+        DISABLE_INTERRUPTS; 
+    }
+
+    /* create the task */ 
+    task_id = task_create(task_function, stack_bottom, priority); 
+
+    /* and insert it into ready list */ 
+    ready_list_insert(task_id); 
+
+    /* call schedule and enable interrupts if kernel 
+       is running */ 
+    if (Kernel_Running)
+    {
+        schedule(); 
+        ENABLE_INTERRUPTS; 
+    }
+
+    return task_id; 
+}
