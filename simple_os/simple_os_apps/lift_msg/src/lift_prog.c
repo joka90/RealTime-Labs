@@ -37,7 +37,8 @@ int Move_Lift_Task_Id;
 int Lowest_Passenger_Task_Id; 
 
 /* the lift to be initialised */
-lift_type mainlift;
+lift_data_type mainliftStatic;
+lift_type mainlift=&mainliftStatic;
 
 
 
@@ -66,6 +67,7 @@ void passenger_task(void)//TODO
 	int to;
 	
 	int arrived;
+    int n_travels=0;
 
     message_data_type msg;
 	
@@ -85,7 +87,7 @@ void passenger_task(void)//TODO
 	
 	current = random_level();	
 
-	while (1)
+	while (n_travels < 2)
     {
 	
 	
@@ -111,9 +113,8 @@ void passenger_task(void)//TODO
 		
 		current = to;
 
-		
+		n_travels++;
 		si_wait_n_ms(TIME_TO_NEW_JOURNEY);
-    
     }
 }
 
@@ -181,14 +182,7 @@ void user_task(void)//TODO
 			} else {
 			
 				int id = n_persons++;
-				si_task_create(passenger_task, &Passenger_Stack[id][STACK_SIZE-1], 17);//SAMMA som innan
-				
-				/*printf("Created task...\n");*/
-				
-				/* send id message to created task */ 
-				si_message_send((char *) &id, sizeof(int), id_to_task_id(id)); 
-				
-				/*printf("Sent ID %d to task...\n",id_to_task_id(id));*/
+                create_passenger(id, 17);
 			}
         }
         /* check if it is an exit message */ 
@@ -202,6 +196,23 @@ void user_task(void)//TODO
             si_ui_show_error("unexpected message type"); 
         }
     }
+}
+
+/* create_passenger: create a person task */ 
+void create_passenger(int id, int priority) 
+{
+    int task_id; 
+
+	/*printf("Created task...\n");*/
+
+    /* create task */ 
+    task_id = si_task_create_task_id(
+        passenger_task, &Passenger_Stack[id][STACK_SIZE - 1], priority);
+
+    /* send id message to created task */ 
+    si_message_send((char *) &id, sizeof(int), task_id);
+
+    printf("Sent ID %d to task with id %d...\n",id_to_task_id(id),task_id);
 }
 
 /* move_lift_task: controls the motion of the lift */ 
@@ -244,7 +255,7 @@ int main(void)
     si_ui_set_size(670, 700); 
 
     /* initialise variables */         
-    mainlift=lift_create();
+    lift_init(mainlift);
 
     /* create tasks */ 
 
