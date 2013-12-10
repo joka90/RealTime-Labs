@@ -80,7 +80,7 @@ typedef lift_data_type* lift_type;
 
 
 /* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void); 
+void lift_init(lift_type lift); 
 
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift); 

@@ -23,10 +23,10 @@ static void lift_panic(const char message[])
 /* --- monitor data type for lift and operations for create and delete START --- */
 
 /* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void) 
+void lift_init(lift_type lift) 
 {
     /* the lift to be initialised */
-    lift_type lift;
+    //lift_type lift;
 
     /* floor counter */ 
     int floor; 
@@ -35,7 +35,7 @@ lift_type lift_create(void)
     int i;
 
     /* allocate memory */
-    lift = (lift_type) malloc(sizeof(lift_data_type));
+    //lift = (lift_type) malloc(sizeof(lift_data_type));
 
     /* initialise variables */
 
@@ -61,9 +61,6 @@ lift_type lift_create(void)
         lift->passengers_in_lift[i].id = NO_ID; 
         lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
     }
-
-
-    return lift;
 }
 
 /* lift_delete: deallocates memory for lift */
