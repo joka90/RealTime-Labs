@@ -1,23 +1,3 @@
-/* This file is part of Simple_OS, a real-time operating system  */
-/* designed for research and education */
-/* Copyright (c) 2003-2013 Ola Dahl */
-
-/* The software accompanies the book Into Realtime, available at  */
-/* http://theintobooks.com */
-
-/* Simple_OS is free software: you can redistribute it and/or modify */
-/* it under the terms of the GNU General Public License as published by */
-/* the Free Software Foundation, either version 3 of the License, or */
-/* (at your option) any later version. */
-
-/* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-/* GNU General Public License for more details. */
-
-/* You should have received a copy of the GNU General Public License */
-/* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 #include "si_string_lib.h"
 
 // #include <stdio.h>
@@ -227,6 +207,99 @@ void si_insert_int_as_hex(char *string, int value)
     string[x_index+6] = hex_chars[(value & 0x00000F00) >> 8]; 
     string[x_index+7] = hex_chars[(value & 0x000000F0) >> 4]; 
     string[x_index+8] = hex_chars[(value & 0x0000000F)]; 
+
+    // printf("string %s after rep has length %d", string, si_string_length(string)); 
+}
+
+void si_insert_int_as_hex_no_leading_zeros(char *string, int value)
+{
+    // look for first occurence of %x, replace it with value as a hex string
+    int percent_sign_index; 
+    int x_index; 
+    int x_index_orig; 
+
+    int string_length; 
+    int replace_string_length; 
+
+    int pos; 
+    int shift_value; 
+
+    char ch_digit; 
+
+    int n_zeros_removed; 
+
+    // int length; 
+
+    int start_move_pos; 
+    int stop_move_pos; 
+    int n_chars_moved; 
+
+    percent_sign_index = index_of_first_occurrance('%', string); 
+
+    if (percent_sign_index < 0)
+    {
+        // fail silently
+        return; 
+    }
+
+    x_index = percent_sign_index + 1; 
+
+    string_length = si_string_length(string); 
+    replace_string_length = 10; 
+
+    if (string[x_index] != 'x')
+    {
+        // fail silently
+        return; 
+    }
+
+    // make room for new string
+    start_move_pos = x_index+1 + replace_string_length-2; 
+    stop_move_pos = string_length + replace_string_length-2; 
+    n_chars_moved = 0; 
+
+    for (pos = string_length; pos >= x_index+1; pos--)
+    {
+        string[pos+replace_string_length-2] = string[pos]; 
+        n_chars_moved++; 
+    }
+
+    // do the replacement
+    // string[x_index-1] = '0'; 
+    // string[x_index] = 'x'; 
+
+    x_index_orig = x_index; 
+
+    x_index-=2; 
+
+    n_zeros_removed = 0; 
+
+    for (shift_value = 28; shift_value >= 4; shift_value--)
+    {
+        ch_digit = hex_chars[(value & 0xF0000000) >> shift_value]; 
+        if (ch_digit != '0') 
+        {
+            x_index++;
+            string[x_index] = ch_digit; 
+        }
+        else
+        {
+            n_zeros_removed++; 
+        }
+    }
+
+    x_index++; 
+    string[x_index] = hex_chars[(value & 0x0000000F)]; 
+
+    // adjust room for new string
+    for (pos = start_move_pos; pos <= stop_move_pos; pos++)
+    {
+        string[x_index + pos-start_move_pos+1] = string[pos]; 
+    }
+
+    // length = si_string_length(string); 
+    // string[length] = 'E'; 
+    // string[length+1] = '\0'; 
 
     // printf("string %s after rep has length %d", string, si_string_length(string)); 
 }
