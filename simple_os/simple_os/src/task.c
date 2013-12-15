@@ -51,6 +51,35 @@ static void enable_int_function(void)
 
 #endif
 
+void cleanup(void)
+{
+    printf("TERMINATING....\n");
+    
+    DISABLE_INTERRUPTS;
+    /* task id for the running task */ 
+    int task_id_running; 
+
+    /* task id for the task in ready list with 
+       highest priority */ 
+    int task_id_highest_prio; 
+
+    /* get task id for the running task */ 
+    task_id_running = task_get_task_id_running(); 
+
+
+    //remove from readylist
+    ready_list_remove(task_id_running); 
+
+    /* get task id for task in ready list with 
+       highest priority */ 
+    task_id_highest_prio = 
+        ready_list_get_task_id_highest_prio(); 
+
+    
+    /* perform task switch */ 
+    task_switch(task_id_running, task_id_highest_prio); 
+}
+
 /* fig_begin prepare_stack_arm */ 
 static void prepare_stack(
     stack_item *stack, mem_address *sp, 
@@ -59,7 +88,12 @@ static void prepare_stack(
 {
     int i;
     stack_item *stack_ref; 
-    stack_ref = stack; 
+    stack_ref = stack;
+
+    //cleanup
+   *stack_ref = (stack_item) &cleanup; 
+   stack_ref--;
+
 /* fig_begin prepare_stack_code_arm */ 
     *stack_ref = (stack_item) task_function; 
 /* fig_end prepare_stack_code_arm */ 
@@ -78,6 +112,7 @@ static void prepare_stack(
     stack_ref--; 
     *stack_ref = (stack_item) enable_int_function; 
 #endif
+
 /* fig_begin prepare_stack_arm */ 
 /* fig_begin prepare_stack_code_arm */ 
     for (i = 0; i < n_saved_registers; i++)
@@ -90,14 +125,14 @@ static void prepare_stack(
 /* fig_end prepare_stack_arm */ 
 #ifdef BUILD_ARM_BB
 /* fig_begin prepare_stack_arm */ 
-    *sp -= 4; 
+    *sp -= 4*2; //funktions och återhoppsadressen är 4*2 stor på 32 bitars cpu
 /* fig_end prepare_stack_arm */ 
 #endif
 #if defined BUILD_X86_HOST
-    *sp -= 4; 
+    *sp -= 4*2; 
 #endif
 #if defined BUILD_X86_64_HOST
-    *sp -= 8; 
+    *sp -= 8*2; 
 #endif
 /* fig_begin prepare_stack_arm */ 
     *sp -= n_saved_registers * n_bytes_per_register; 
