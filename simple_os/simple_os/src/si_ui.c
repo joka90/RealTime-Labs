@@ -1,32 +1,17 @@
-/* This file is part of Simple_OS, a real-time operating system  */
-/* designed for research and education */
-/* Copyright (c) 2003-2013 Ola Dahl */
-
-/* The software accompanies the book Into Realtime, available at  */
-/* http://theintobooks.com */
-
-/* Simple_OS is free software: you can redistribute it and/or modify */
-/* it under the terms of the GNU General Public License as published by */
-/* the Free Software Foundation, either version 3 of the License, or */
-/* (at your option) any later version. */
-
-/* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-/* GNU General Public License for more details. */
-
-/* You should have received a copy of the GNU General Public License */
-/* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 #include "si_ui.h"
 
-#include "simple_os.h"
+#include <pthread.h>
+
+/* unistd is needed for usleep and sleep */ 
+#include <unistd.h>
 
 #include "si_comm.h"
 
+#ifndef PTHREADS
 #include "console.h"
+#endif
 
-#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
+#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST || defined PTHREADS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +26,7 @@ static char Message_Buffer[SI_UI_MESSAGE_BUFFER_SIZE];
 
 /* semaphore to ensure only one task accesses the communication link, 
    during sending and receiving */ 
-static si_semaphore Si_Ui_Mutex; 
+static pthread_mutex_t Si_Ui_Mutex; 
 
 /* position where to start writing the next message into the buffer */ 
 static int Message_Pos; 
@@ -59,7 +44,7 @@ void si_ui_init(void)
     /* open communication channel */ 
     si_comm_open(); 
     /* initialise message buffer semaphore */ 
-    si_sem_init(&Si_Ui_Mutex, 1); 
+    pthread_mutex_init(&Si_Ui_Mutex, NULL); 
     /* start writing at the beginning of the message buffer */
     Message_Pos = 0; 
 }
@@ -67,7 +52,7 @@ void si_ui_init(void)
 static void remove_trailing_command_delim(char buffer [])
 {
     int len; 
-    len = si_string_length(buffer); 
+    len = strlen(buffer); 
     if (buffer[len-1] == Command_Delim)
     {
         buffer[len-1] = '\0'; 
@@ -92,6 +77,8 @@ static void send_buffer(void)
     do
     {
         /* write message buffer contents to communication channel */ 
+        // printf(Message_Buffer); 
+
         si_comm_return_value = si_comm_write(Message_Buffer); 
 
         n_tries++; 
@@ -100,24 +87,22 @@ static void send_buffer(void)
         if (si_comm_return_value != SI_COMM_OK)
         {
             /* release buffer, wait a while, and then reserve buffer again */ 
-            si_sem_signal(&Si_Ui_Mutex); 
-            si_wait_n_ms(delay_ms_between_tries); 
-            si_sem_wait(&Si_Ui_Mutex); 
+            pthread_mutex_unlock(&Si_Ui_Mutex); 
+            usleep(delay_ms_between_tries * 1000); 
+            pthread_mutex_lock(&Si_Ui_Mutex); 
         }
     } while (n_tries < max_n_tries && si_comm_return_value != SI_COMM_OK); 
 
     if (si_comm_return_value != SI_COMM_OK)
     {
-        console_put_string("si_ui: NOTE: communication problem - number of write tries"); 
-        console_put_hex(n_tries); 
-        console_put_string("\n"); 
+        printf("si_ui: NOTE: communication problem - number of write tries: %d", n_tries); 
     }
 }
 
 /* append_to_buffer: appends message to the message buffer */ 
 static void append_to_buffer(char message[])
 {
-#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
+#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST || defined PTHREADS
     size_t i; 
 #endif
 #ifdef BUILD_ARM_BB
@@ -125,14 +110,14 @@ static void append_to_buffer(char message[])
 #endif
     int buffer_full = 0; 
 
-    for (i = 0; i < si_string_length(message) && !buffer_full; i++)
+    for (i = 0; i < strlen(message) && !buffer_full; i++)
     {
         Message_Buffer[Message_Pos] = message[i]; 
         Message_Pos++; 
         /* check if we are overflowing the buffer */ 
         if (Message_Pos >= SI_UI_MESSAGE_BUFFER_SIZE - 1)
         {
-            console_put_string("NOTE: message buffer OVERFLOW\n"); 
+            printf("NOTE: message buffer OVERFLOW\n"); 
             /* add string terminator */    
             Message_Buffer[Message_Pos] = '\0'; 
             buffer_full = 1; 
@@ -154,19 +139,19 @@ static void append_to_buffer(char message[])
 
 void si_ui_draw_begin(void)
 {
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
     /* start from the beginning */ 
     Message_Pos = 0; 
         
     append_to_buffer("draw_begin"); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 }
 
 void si_ui_draw_end(void)
 {
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
     append_to_buffer("draw_end"); 
 
@@ -178,35 +163,29 @@ void si_ui_draw_end(void)
     /* send the buffer */ 
     send_buffer(); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 }
 
 void si_ui_draw_string(char string[], int x_coord, int y_coord)
 {
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
-    si_string_copy(Message_String, "draw_string:%x:%x:%s"); 
-    si_insert_int_as_hex(Message_String, x_coord); 
-    si_insert_int_as_hex(Message_String, y_coord); 
-    si_insert_string(Message_String, string); 
+    sprintf(Message_String, "draw_string:%08X:%08X:%s", x_coord, y_coord, string); 
 
     append_to_buffer(Message_String); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 }
      
 void si_ui_draw_image(char image_name[], int x_coord, int y_coord)
 {
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
-    si_string_copy(Message_String, "draw_image:%s:%x:%x"); 
-    si_insert_string(Message_String, image_name); 
-    si_insert_int_as_hex(Message_String, x_coord); 
-    si_insert_int_as_hex(Message_String, y_coord); 
+    sprintf(Message_String, "draw_image:%s:%08X:%08X", image_name, x_coord, y_coord); 
 
     append_to_buffer(Message_String); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 }
 
 
@@ -214,14 +193,13 @@ void si_ui_show_error(char message[])
 {
     si_ui_draw_begin(); 
 
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
-    si_string_copy(Message_String, "show_error:%s"); 
-    si_insert_string(Message_String, message); 
+    sprintf(Message_String, "show_error:%s", message); 
 
     append_to_buffer(Message_String); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 
     si_ui_draw_end(); 
 }
@@ -230,15 +208,13 @@ void si_ui_set_size(int x_size, int y_size)
 {
     si_ui_draw_begin(); 
 
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
-    si_string_copy(Message_String, "set_size:%x:%x"); 
-    si_insert_int_as_hex(Message_String, x_size); 
-    si_insert_int_as_hex(Message_String, y_size); 
+    sprintf(Message_String, "set_size:%08X:%08X", x_size, y_size); 
 
     append_to_buffer(Message_String); 
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 
     si_ui_draw_end(); 
 }
@@ -254,7 +230,7 @@ void si_ui_receive(char message[])
 
     n_tries = 0; 
 
-    si_sem_wait(&Si_Ui_Mutex); 
+    pthread_mutex_lock(&Si_Ui_Mutex); 
 
     do
     {
@@ -265,20 +241,18 @@ void si_ui_receive(char message[])
         /* wait and let other tasks try if reading is not ok */ 
         if (si_comm_return_value != SI_COMM_OK)
         {
-            si_sem_signal(&Si_Ui_Mutex); 
-            si_wait_n_ms(delay_ms_between_tries); 
-            si_sem_wait(&Si_Ui_Mutex); 
+            pthread_mutex_unlock(&Si_Ui_Mutex); 
+            usleep(delay_ms_between_tries * 1000); 
+            pthread_mutex_lock(&Si_Ui_Mutex); 
         }
     } while (n_tries < max_n_tries && si_comm_return_value != SI_COMM_OK); 
 
     if (si_comm_return_value != SI_COMM_OK)
     {
-        console_put_string("si_ui: NOTE: communication problem - number of read tries"); 
-        console_put_hex(n_tries); 
-        console_put_string("\n"); 
+        printf("si_ui: NOTE: communication problem - number of read tries %d", n_tries); 
     }
 
-    si_sem_signal(&Si_Ui_Mutex); 
+    pthread_mutex_unlock(&Si_Ui_Mutex); 
 }
 
 void si_ui_close(void)

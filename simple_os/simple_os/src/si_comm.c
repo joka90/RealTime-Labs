@@ -1,28 +1,12 @@
-/* This file is part of Simple_OS, a real-time operating system  */
-/* designed for research and education */
-/* Copyright (c) 2003-2013 Ola Dahl */
-
-/* The software accompanies the book Into Realtime, available at  */
-/* http://theintobooks.com */
-
-/* Simple_OS is free software: you can redistribute it and/or modify */
-/* it under the terms of the GNU General Public License as published by */
-/* the Free Software Foundation, either version 3 of the License, or */
-/* (at your option) any later version. */
-
-/* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-/* GNU General Public License for more details. */
-
-/* You should have received a copy of the GNU General Public License */
-/* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
 #include "si_comm.h"
 
+#ifndef PTHREADS
 #include "console.h"
+#endif 
 
-#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
+/* NOTE: this module is currently not adapted for Simple_OS on ARM */ 
+
+#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST || defined PTHREADS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +35,7 @@ typedef int socklen_t;
 #define SI_COMM_ERROR (-1)
 #define SI_COMM_EMPTY 1
 
-#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
+#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST || defined PTHREADS
 
 #ifdef BUILD_X86_WIN_HOST
 static SOCKET newsockfd = -1; 
@@ -130,7 +114,7 @@ void si_comm_open(void)
     clilen = sizeof(cli_addr); 
 #endif
 
-    portno = 2546; 
+    portno = 2000; 
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
