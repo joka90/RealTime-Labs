@@ -115,7 +115,7 @@ void lift_travel(
 /* fig_end mon_functions */ 
 
 
-int random_level(void);
+int random_level(int id);
 
 
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */

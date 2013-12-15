@@ -53,7 +53,7 @@ static void enable_int_function(void)
 
 void cleanup(void)
 {
-    printf("TERMINATING....\n");
+    //printf("TERMINATING....\n");
     
     DISABLE_INTERRUPTS;
     /* task id for the running task */ 

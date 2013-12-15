@@ -43,10 +43,10 @@ lift_type mainlift=&mainliftStatic;
 
 
 /* random_level: computes a randomly chosen level */
-int random_level(void)
+int random_level(int id)
 {
     /* return random number between 0 and N_FLOORS-1 */
-    return rand() % N_FLOORS;
+    return ((mainlift->floor)*id) % N_FLOORS;
 }
 
 
@@ -78,14 +78,14 @@ void passenger_task(void)//TODO
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg
 
-	printf("Person %d spawned as task %d \n", id, id_to_task_id(id));
+	//printf("Person %d spawned as task %d \n", id, id_to_task_id(id));
 
 	/* message för att be om hisstur */
 	message_data_type travel_msg;
 	travel_msg.type = TRAVEL_MESSAGE;
 	travel_msg.id = id;
 	
-	current = random_level();	
+	current = random_level(id);	
 
 	while (n_travels < 2)
     {
@@ -93,7 +93,7 @@ void passenger_task(void)//TODO
 	
 		arrived = 0;
 		from = current;
-        to = random_level();
+        to = random_level(id);
 		
 	    travel_msg.from_floor = from;
     	travel_msg.to_floor = to;
@@ -173,7 +173,7 @@ void user_task(void)//TODO
         /* read a message */ 
         si_ui_receive(message); 
         /* check if it is a set time message */ 
-        if (strncmp(message, "new", 3) == 0)
+        if (si_string_compare(message, "new") == 0)
         {
 		/*printf("Spawning...\n");*/
 			if (n_persons == MAX_N_PERSONS)
@@ -186,9 +186,9 @@ void user_task(void)//TODO
 			}
         }
         /* check if it is an exit message */ 
-        else if (strcmp(message, "exit") == 0)
+        else if (si_string_compare(message, "exit") == 0)
         {
-            exit(0); 
+            return; 
         }
         /* not a legal message */ 
         else 
@@ -212,7 +212,7 @@ void create_passenger(int id, int priority)
     /* send id message to created task */ 
     si_message_send((char *) &id, sizeof(int), task_id);
 
-    printf("Sent ID %d to task with id %d...\n",id_to_task_id(id),task_id);
+    //printf("Sent ID %d to task with id %d...\n",id_to_task_id(id),task_id);
 }
 
 /* move_lift_task: controls the motion of the lift */ 
@@ -246,7 +246,7 @@ int main(void)
     si_message_init(); 
 	
 	/* set up random number generator */
-	srand(12345);
+	//srand(12345);
     
     /* initialise UI channel */ 
     si_ui_init(); 

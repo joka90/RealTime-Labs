@@ -14,10 +14,10 @@
 /* panic function, to be called when fatal errors occur */ 
 static void lift_panic(const char message[])
 {
-    printf("LIFT_PANIC!!! "); 
+/*    printf("LIFT_PANIC!!! "); 
     printf("%s", message); 
     printf("\n"); 
-    exit(0); 
+    exit(0); */
 }
 
 /* --- monitor data type for lift and operations for create and delete START --- */
@@ -66,7 +66,7 @@ void lift_init(lift_type lift)
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift)
 {
-    free(lift);
+    //free(lift);
 }
 
 
