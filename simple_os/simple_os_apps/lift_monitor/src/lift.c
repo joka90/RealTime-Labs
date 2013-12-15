@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-+#include <pthread.h>
+#include <pthread.h>
 
 /* unistd is needed for usleep and sleep */ 
 #include <unistd.h>

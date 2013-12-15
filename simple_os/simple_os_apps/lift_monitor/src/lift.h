@@ -3,6 +3,11 @@
 
 #include <simple_os.h>
 
+#include <pthread.h>
+
+/* unistd is needed for usleep and sleep */ 
+#include <unistd.h>
+
 /* fig_begin lift_h_defs */ 
 /* size of building */ 
 #define N_FLOORS 5
