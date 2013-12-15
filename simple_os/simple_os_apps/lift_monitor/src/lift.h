@@ -61,10 +61,10 @@ typedef struct
     person_data_type passengers_in_lift[MAX_N_PASSENGERS];
 
     /* semaphore for mutual exclusion */
-    si_semaphore mutex; 
+    pthread_mutex_t mutex; 
 
     /* condition variable, to indicate that something has happend */ 
-    si_condvar change; 
+    pthread_cond_t change; 
 
 } lift_data_type;
 

@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 
++#include <pthread.h>
+
+/* unistd is needed for usleep and sleep */ 
+#include <unistd.h>
+
 /* panic function, to be called when fatal errors occur */ 
 static void lift_panic(const char message[])
 {
@@ -66,8 +71,8 @@ lift_type lift_create(void)
     }
 
     /* initialise semaphore and event variable */
-    si_sem_init(&lift->mutex, 1); 
-    si_cv_init(&lift->change, &lift->mutex); 
+    pthread_mutex_init(&lift->mutex, NULL); 
+    pthread_cond_init(&lift->change, &lift->mutex); 
 
     return lift;
 }
@@ -91,7 +96,7 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 {
    
     /* reserve lift */ 
-    si_sem_wait(&lift->mutex);
+    pthread_mutex_lock(&lift->mutex);
 	
 	if (lift->up)
 	{
@@ -116,25 +121,25 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 	}
 	
 	/* release lift */ 
-    si_sem_signal(&lift->mutex); 
+    pthread_mutex_unlock(&lift->mutex); 
 }
 
 void lift_move(lift_type lift, int next_floor, int change_direction)
 {
     /* reserve lift */ 
-    si_sem_wait(&lift->mutex); 
+    pthread_mutex_lock(&lift->mutex); 
 
     /* the lift is moving */ 
     lift->moving = 1; 
         
     /* release lift */ 
-    si_sem_signal(&lift->mutex); 
+    pthread_mutex_unlock(&lift->mutex); 
         
     /* it takes two seconds to move to the next floor */ 
-    si_wait_n_ms(TIME_BETWEEN_FLOORS); 
+    usleep(1000*TIME_BETWEEN_FLOORS); 
         
     /* reserve lift */ 
-    si_sem_wait(&lift->mutex); 
+    pthread_mutex_lock(&lift->mutex); 
         
     /* the lift is not moving */ 
     lift->moving = 0; 
@@ -152,7 +157,7 @@ void lift_move(lift_type lift, int next_floor, int change_direction)
     draw_lift(lift); 
 
     /* release lift */ 
-    si_sem_signal(&lift->mutex); 
+    pthread_mutex_unlock(&lift->mutex); 
 }
 
 /* this function is used also by the person tasks */ 
@@ -217,10 +222,10 @@ void lift_has_arrived(lift_type lift)
 	if (n_passengers_on_floor(lift, lift->floor) || (n_passengers_to_floor(lift, lift->floor)))
 		{
 			/* Berätta för alla att hissen är på ny våning */
-			si_cv_broadcast(&lift->change);
+			pthread_cond_broadcast(&lift->change);
 	
 			/* Vänta i så fall ett tag på våningen */
-			si_wait_n_ms(TIME_ON_FLOOR);
+			usleep(1000*TIME_ON_FLOOR);
 		}
 }
 
@@ -370,8 +375,8 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
     
     while (!boarded)
     {
-        si_sem_wait(&lift->mutex);
-        si_cv_wait(&lift->change);
+        pthread_mutex_lock(&lift->mutex);
+        pthread_cond_wait(&lift->change,&lift->mutex);
                     printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (!passenger_wait_for_lift(lift, from_floor))
         {
@@ -379,13 +384,13 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
             enter_lift(lift, id, to_floor);
             boarded = 1;
         }
-        si_sem_signal(&lift->mutex);
+        pthread_mutex_unlock(&lift->mutex);
     }
     
     while (!arrived)
     {
-        si_sem_wait(&lift->mutex);
-        si_cv_wait(&lift->change);
+        pthread_mutex_lock(&lift->mutex);
+        pthread_cond_wait(&lift->change,&lift->mutex);
         
                     printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (lift->floor == to_floor)
@@ -396,7 +401,7 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
             
             arrived = 1;
         }
-        si_sem_signal(&lift->mutex);        
+        pthread_mutex_unlock(&lift->mutex);        
     }
 }
 

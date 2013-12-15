@@ -22,8 +22,6 @@ stack_item User_Stack[STACK_SIZE];
 /* stack for lift_task */ 
 stack_item Lift_Stack[STACK_SIZE]; 
 
-//TODO fix passenger_task
-
 /* Stacks for passenger tasks */
 stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
@@ -67,9 +65,9 @@ void passenger_task(void)
     	to = random_level();
     	
     	
-    	si_sem_wait(&mainlift->mutex);
+    	pthread_mutex_lock(&mainlift->mutex);
         enter_floor(mainlift,id, current);//spawna
-    	si_sem_signal(&mainlift->mutex);
+    	pthread_mutex_unlock(&mainlift->mutex);
 
     	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
     	
@@ -78,13 +76,13 @@ void passenger_task(void)
 
     	printf("Passenger %d arrived at %d.\n", id, current);
     	
-    	si_sem_wait(&mainlift->mutex);
+    	pthread_mutex_lock(&mainlift->mutex);
 
         leave_floor(mainlift, id, current);//ta bort från våning
 
-    	si_sem_signal(&mainlift->mutex);
+    	pthread_mutex_unlock(&mainlift->mutex);
     	
-    	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
+    	usleep(1000*TIME_TO_NEW_JOURNEY);
     
     }
 }
@@ -106,56 +104,6 @@ void lift_task(void)
 	lift_has_arrived(mainlift);
 	
 	
-	/* För debug
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-	    lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_has_arrived(mainlift);
-		
-		printf("| %d %d |", next, dirchange);
-		exit(mainlift->floor);
-		*/
     }
 }
 
