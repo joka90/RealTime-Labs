@@ -27,17 +27,23 @@ stack_item Lift_Stack[STACK_SIZE];
 /* Stacks for passenger tasks */
 stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
+
+si_semaphore mutex_passenger_alive_list; 
+int passenger_alive_list[MAX_N_PERSONS];
+
 /* the lift to be initialised */
 lift_data_type mainliftStatic;
 lift_data_type *mainlift;
 
 void create_passenger(int id, int priority);
 
+int randVari;
+
 /* random_level: computes a randomly chosen level */
 int random_level(int id)
 {
     /* return random number between 0 and N_FLOORS-1 */
-    return ((mainlift->floor)*id) % N_FLOORS;
+    return ((mainlift->floor)*id+randVari+56) % N_FLOORS;
 }
 
 
@@ -94,6 +100,11 @@ void passenger_task(void)
     	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
     
     }
+    si_sem_wait(&mutex_passenger_alive_list);
+    
+    passenger_alive_list[id]=0;
+    
+    si_sem_signal(&mutex_passenger_alive_list);
 }
 
 /* There shall be one task, called lift_task, for the lift.  */
@@ -107,12 +118,43 @@ void lift_task(void)
 
     while (1)
     {
-	
-	lift_next_floor(mainlift, &next, &dirchange);
-	lift_move(mainlift, next, dirchange);
-	lift_has_arrived(mainlift);
-	
+
+	    lift_next_floor(mainlift, &next, &dirchange);
+	    lift_move(mainlift, next, dirchange);
+	    lift_has_arrived(mainlift);
+	    randVari++;
     }
+}
+
+/* create_passenger: create a person task */ 
+void create_passenger(int id, int priority) 
+{
+    int task_id; 
+
+	/*printf("Created task...\n");*/
+    int i;
+    int id_index;
+    int found;
+    found =0;
+    si_sem_wait(&mutex_passenger_alive_list);
+    for (i = 0; i < MAX_N_PERSONS && !found; i++)
+    {
+        if(passenger_alive_list[i]==0)
+        {
+            found=1;
+            id_index=i;
+            passenger_alive_list[i]=1;
+        }
+    }
+    si_sem_signal(&mutex_passenger_alive_list);
+    /* create task */ 
+    task_id = si_task_create_task_id(
+        passenger_task, &Passenger_Stack[id_index][STACK_SIZE - 1], priority);
+
+    /* send id message to created task */ 
+    si_message_send((char *) &id_index, sizeof(int), task_id);
+
+    //printf("Sent ID %d to task with id %d...\n",id_to_task_id(id),task_id);
 }
 
 /*
@@ -137,16 +179,22 @@ void user_task(void)
         if (si_string_compare(message, "new") == 0)
         {
 		//printf("blaba!!!!\n");
+		    int i;
+		    n_persons = 0;
+            for (i = 0; i < MAX_N_PERSONS; i++)
+            {
+                if(passenger_alive_list[i]!=0)
+                {
+                    n_persons++;
+                }
+            }
 			if (n_persons == MAX_N_PERSONS)
 			{
 				si_ui_show_error("Failure to comply: Overpopulation!");
 			} else {
 			
 				int id = n_persons++;
-				si_task_create(passenger_task, &Passenger_Stack[id][STACK_SIZE-1], 17);
-			
-				/* send id message to created task */ 
-				si_message_send((char *) &id, sizeof(int), id_to_task_id(id)); 
+				create_passenger(id, 17);
 			}
         }
         /* check if it is an exit message */ 
@@ -176,11 +224,20 @@ int main(void)
 	
 	/* set up random number generator */
 	//srand(12345);
+    randVari=0;
     
     /* initialise UI channel */ 
     si_ui_init(); 
     draw_init();
+
+    int i;
+    for (i = 0; i < MAX_N_PERSONS; i++)
+    {
+        passenger_alive_list[i]=0;
+    }
     
+    
+    si_sem_init(&mutex_passenger_alive_list, 1); 
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 

@@ -62,10 +62,13 @@ void cleanup(void)
     /* task id for the task in ready list with 
        highest priority */ 
     int task_id_highest_prio; 
+    task_control_block* currentTcb;
 
     /* get task id for the running task */ 
     task_id_running = task_get_task_id_running(); 
 
+    currentTcb=tcb_storage_get_tcb_ref(task_id_running); 
+    tcb_reset(currentTcb); 
 
     //remove from readylist
     ready_list_remove(task_id_running); 
