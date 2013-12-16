@@ -89,14 +89,16 @@ static void prepare_stack(
     int i;
     stack_item *stack_ref; 
     stack_ref = stack;
-
+#if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
     //cleanup
    *stack_ref = (stack_item) &cleanup; 
    stack_ref--;
+#endif
 
 /* fig_begin prepare_stack_code_arm */ 
     *stack_ref = (stack_item) task_function; 
 /* fig_end prepare_stack_code_arm */ 
+
 /* fig_end prepare_stack_arm */ 
 #ifdef BUILD_ARM_BB
 /* fig_begin prepare_stack_arm */ 
@@ -118,14 +120,20 @@ static void prepare_stack(
     for (i = 0; i < n_saved_registers; i++)
     {
         stack_ref--; 
-        *stack_ref = 0; 
+        *stack_ref = 0;
+#ifdef BUILD_ARM_BB
+        if(i==0)
+        {
+            *stack_ref = (stack_item) &cleanup;
+        }
+#endif
     }
 /* fig_end prepare_stack_code_arm */ 
     *sp = (mem_address) stack; 
 /* fig_end prepare_stack_arm */ 
 #ifdef BUILD_ARM_BB
 /* fig_begin prepare_stack_arm */ 
-    *sp -= 4*2; //funktions och återhoppsadressen är 4*2 stor på 32 bitars cpu
+    *sp -= 4; //funktions och återhoppsadressen är 4*2 stor på 32 bitars cpu
 /* fig_end prepare_stack_arm */ 
 #endif
 #if defined BUILD_X86_HOST
