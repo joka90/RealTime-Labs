@@ -1,0 +1,17 @@
+compile as usual
+
+
+load file
+gtk term s1 max baud
+
+enter stop boot
+
+loads
+ctrl-r
+go 80000000
+
+close term
+
+to start gui:
+python tcp_serial_redirect_mod.py -p "/dev/ttyS1" -b115200 -P2546
+
