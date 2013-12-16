@@ -61,6 +61,14 @@ void lift_init(lift_data_type* lift)
         lift->passengers_in_lift[i].id = NO_ID; 
         lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
     }
+    
+    log_i = 0;
+    
+    for (i = 0; i < LOG_SIZE; i++) 
+    {
+        lift->log_msgs[i][0] = '\0'; 
+    }
+    
 }
 
 /* lift_delete: deallocates memory for lift */

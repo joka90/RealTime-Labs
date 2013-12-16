@@ -35,7 +35,8 @@
 #define MOVE_LIFT_PRIORITY 10
 #define USER_PRIORITY 15
 
-
+#define LOG_SIZE 10
+#define LOG_MSG_LEN 20
 
 
 typedef struct
@@ -72,6 +73,10 @@ typedef struct
     person_data_type persons_to_enter[N_FLOORS][MAX_N_PERSONS];
 
     person_data_type passengers_in_lift[MAX_N_PASSENGERS];
+    
+    int log_i;
+    
+    char log_msgs[LOG_SIZE][LOG_MSG_LEN];
 
 } lift_data_type;
 

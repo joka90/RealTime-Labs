@@ -14,19 +14,19 @@
 /* panic function, to be called when fatal errors occur */ 
 static void lift_panic(const char message[])
 {
-    printf("LIFT_PANIC!!! "); 
-    printf("%s", message); 
-    printf("\n"); 
-    exit(0); 
+    //printf("LIFT_PANIC!!! "); 
+    //printf("%s", message); 
+    //printf("\n"); 
+    //exit(0); 
 }
 
 /* --- monitor data type for lift and operations for create and delete START --- */
 
 /* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void) 
+lift_type lift_create(lift_type lift) 
 {
     /* the lift to be initialised */
-    lift_type lift;
+    //lift_type lift;
 
     /* floor counter */ 
     int floor; 
@@ -35,7 +35,7 @@ lift_type lift_create(void)
     int i;
 
     /* allocate memory */
-    lift = (lift_type) malloc(sizeof(lift_data_type));
+    //lift = (lift_type) malloc(sizeof(lift_data_type));
 
     /* initialise variables */
 
@@ -75,7 +75,7 @@ lift_type lift_create(void)
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift)
 {
-    free(lift);
+    //free(lift);
 }
 
 
@@ -158,7 +158,8 @@ void lift_move(lift_type lift, int next_floor, int change_direction)
 /* this function is used also by the person tasks */ 
 static int n_passengers_in_lift(lift_type lift)
 {
-    int n_passengers = 0; 
+    int n_passengers; 
+    n_passengers = 0;
     int i; 
         
     for (i = 0; i < MAX_N_PASSENGERS; i++)
@@ -174,7 +175,8 @@ static int n_passengers_in_lift(lift_type lift)
 /* Ger hur många i hissen som ska av på en viss våning */
 static int n_passengers_to_floor(lift_type lift, int floor)
 {
-	int n = 0;
+	int n;
+	n = 0;
 	int i;
 	
 	for (i=0; i < MAX_N_PASSENGERS; i++)
@@ -192,7 +194,8 @@ static int n_passengers_to_floor(lift_type lift, int floor)
 /* Ger hur många i på en viss våning som vill in */
 static int n_passengers_on_floor(lift_type lift, int floor)
 {
-	int n = 0;
+	int n;
+	n = 0;
 	int i;
 	
 	for (i=0; i < MAX_N_PASSENGERS; i++)
@@ -364,15 +367,17 @@ static void enter_lift(lift_type lift, int id, int to_floor)
    starting at from_floor, and ending at to_floor */ 
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 {
-    int boarded = 0;
-    int arrived = 0;
+    int boarded;
+    boarded = 0;
+    int arrived;
+    arrived = 0;
 
     
     while (!boarded)
     {
         si_sem_wait(&lift->mutex);
         si_cv_wait(&lift->change);
-                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
+                    //printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (!passenger_wait_for_lift(lift, from_floor))
         {
             leave_floor(lift, id, from_floor);
@@ -387,7 +392,7 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
         si_sem_wait(&lift->mutex);
         si_cv_wait(&lift->change);
         
-                    printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
+                    //printf("Passenger %d  from %d to %d.\n", id, from_floor, to_floor);
         if (lift->floor == to_floor)
         {
             leave_lift(lift, id);

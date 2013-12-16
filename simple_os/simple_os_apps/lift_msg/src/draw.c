@@ -101,7 +101,34 @@ void draw_lift(lift_data_type* lift)
             }
         }
     }
+    
+    /* draw log */
+    
+    for (i = 0; i < LOG_SIZE; i++)
+    {
+        si_string_copy(message, lift->log_msgs[i][0]); 
+        si_ui_draw_string(message, xLift + 150, i*30); 
+    }
 
     si_ui_draw_end(); 
 }
+
+void insert_log(lift_data_type *lift, char* msg)
+{
+    int current;
+    current = lift->log_i;
+    current++;
+    
+    si_string_copy(lift->log_msgs[current],msg);
+    
+    lift->log_i = current;
+    
+}
+
+void insert_log_with_val(lift_data_type *lift, char *msg, int val)
+{
+    si_string_copy(message, msg); 
+    si_insert_int_as_hex_no_leading_zeros(message, val);
+    insert_log(lift, message);  
+}    
 

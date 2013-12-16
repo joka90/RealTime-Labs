@@ -324,7 +324,7 @@ if __name__ == '__main__':
             break
         except socket.error, msg:
             sys.stderr.write('ERROR: %s\n' % msg)
-            connection.close()
-            sys.stderr.write('PID %s\n' % (os.getpid(),))
+    connection.close()
+    sys.stderr.write('PID %d\n' % (os.getpid(),))
     sys.stderr.write('\n--- exit ---\n')
 

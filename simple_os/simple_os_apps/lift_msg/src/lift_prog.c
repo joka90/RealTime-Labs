@@ -38,7 +38,7 @@ int Lowest_Passenger_Task_Id;
 
 /* the lift to be initialised */
 lift_data_type mainliftStatic;
-lift_data_type *mainlift=&mainliftStatic;
+lift_data_type *mainlift;
 
 void create_passenger(int id, int priority);
 
@@ -68,26 +68,28 @@ void passenger_task(void)//TODO
 	
 	int arrived;
     int n_travels;
+    int type;
     n_travels=0;
 
     message_data_type msg;
-	
-
-	
-	
-
+    //si_ui_show_error("pasengertask wants to recv");
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);//TODO Ska vi skicka via usertask först? Sedan ändra till att ta emot msg
-
+    //si_ui_show_error("pasengertask wants has recv");
 	//printf("Person %d spawned as task %d \n", id, id_to_task_id(id));
 
 	/* message för att be om hisstur */
 	message_data_type travel_msg;
 	travel_msg.type = TRAVEL_MESSAGE;
 	travel_msg.id = id;
-	
+    console_put_string("user-id: 0x");
+    console_put_hex(id);
+    console_put_string("\n");
 	current = random_level(id);	
 
+    console_put_string("current-flor: 0x");
+    console_put_hex(current);
+    console_put_string("\n");
 	while (n_travels < 2)
     {
 	
@@ -104,10 +106,11 @@ void passenger_task(void)//TODO
 		while(!arrived)
 		{
 			si_message_receive((char *) &msg, &length, &send_task_id);
-			
-			if(msg.type == TRAVEL_DONE_MESSAGE)
+			type=msg.type;
+			if(type == TRAVEL_DONE_MESSAGE)
 			{
 				arrived = 1;
+				si_ui_show_error("travel done");
 			}
 		}
 		
@@ -133,26 +136,45 @@ void lift_task(void)//TODO
 
 	draw_lift(mainlift);
 
-
+    int type;
+    int id;
+    int from_floor;
+    int to_floor;
+    
     while (1)
     {
         si_message_receive((char *) &msg, &length, &send_task_id);
-
-        if(msg.type == MOVE_MESSAGE)
+        type=msg.type;
+        id=msg.id;
+        from_floor=msg.from_floor;
+        to_floor=msg.to_floor;
+        console_put_string("lift-msg-id: 0x");
+        console_put_hex(id);
+        console_put_string("\n");
+        console_put_string("lift-msg-type: 0x");
+        console_put_hex(type);
+        console_put_string("\n");
+        //draw_log_val(id);
+        if(type == MOVE_MESSAGE)
         {
 			lift_next_floor(mainlift, &next, &dirchange);
 			lift_move(mainlift, next, dirchange);
 			lift_has_arrived(mainlift);
         }
-        else if(msg.type == TRAVEL_MESSAGE)
+        else if(type == TRAVEL_MESSAGE)
         {
             /* a travel message is sent to the lift task when a 
-               person would like to make a lift travel */ 
-		    enter_floor(mainlift, msg.id, msg.from_floor, msg.to_floor);
-		    si_ui_show_error("Passenger began travel");
+               person would like to make a lift travel */
+            console_put_string("LIIIIIIIIIIIIIIIIIIIIIIIFT passenger TASK TRAVEL TO FLOOr: 0x");
+            console_put_hex(to_floor);
+            console_put_string("\n");
+            si_ui_show_error("Passenger began travel");
+		    enter_floor(mainlift, id, from_floor, to_floor);
+		    
         }
 		
 		draw_lift(mainlift);
+		//si_wait_n_ms(2);
     }
 
 }
@@ -162,9 +184,6 @@ There shall be one task, called user_task, which receives commands from the grap
 */
 void user_task(void)//TODO
 {
-    /* set size of GUI window */ 
-    si_ui_set_size(670, 700); 
-
 	int n_persons;
     n_persons = 0;
 	
@@ -186,7 +205,8 @@ void user_task(void)//TODO
 			
 				int id;
 				id=n_persons++;
-                create_passenger(id, 17);
+				si_ui_show_error("create passenger in user task");
+                create_passenger(id, 17+id);
 			}
         }
         /* check if it is an exit message */ 
@@ -257,7 +277,7 @@ int main(void)
 
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
-
+    mainlift=&mainliftStatic;
     /* initialise variables */         
     lift_init(mainlift);
 

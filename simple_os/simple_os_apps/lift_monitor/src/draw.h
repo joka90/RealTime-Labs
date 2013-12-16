@@ -11,4 +11,6 @@
 void draw_lift(lift_type lift);
 /* fig_end draw_lift_h */ 
 
+void draw_init(void);
+
 #endif

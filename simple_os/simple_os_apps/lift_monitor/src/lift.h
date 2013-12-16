@@ -73,7 +73,7 @@ typedef lift_data_type* lift_type;
 
 
 /* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void); 
+lift_type lift_create(lift_type lift); 
 
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift); 
@@ -110,7 +110,7 @@ void lift_travel(
 /* fig_end mon_functions */ 
 
 
-int random_level(void);
+int random_level(int id);
 
 
 void init_lift(void);

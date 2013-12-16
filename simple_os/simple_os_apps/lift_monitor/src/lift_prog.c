@@ -28,16 +28,18 @@ stack_item Lift_Stack[STACK_SIZE];
 stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
 /* the lift to be initialised */
-lift_type mainlift;
+lift_data_type mainliftStatic;
+lift_data_type *mainlift;
 
-
+void create_passenger(int id, int priority);
 
 /* random_level: computes a randomly chosen level */
-int random_level(void)
+int random_level(int id)
 {
     /* return random number between 0 and N_FLOORS-1 */
-    return rand() % N_FLOORS;
+    return ((mainlift->floor)*id) % N_FLOORS;
 }
+
 
 
 /* ======== tasks ======== */
@@ -46,7 +48,7 @@ int random_level(void)
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */
 void passenger_task(void)
 {
-	//printf("blaba\n");
+	////printf("blaba\n");
 
 	int id;
 	int length;
@@ -56,27 +58,31 @@ void passenger_task(void)
 	int from;
 	int to;
 
+    int n_travels;
+    n_travels=0;
+
     /* receive id */ 
     si_message_receive((char *) &id, &length, &send_task_id);
 	
-	current = random_level();	
+	current = random_level(id);	
 
-	while (1)
+	while (n_travels < 2)
     {
+	
     	from = current;
-    	to = random_level();
+    	to = random_level(id);
     	
     	
     	si_sem_wait(&mainlift->mutex);
         enter_floor(mainlift,id, current);//spawna
     	si_sem_signal(&mainlift->mutex);
 
-    	printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
+    	//printf("Passenger %d starting journey from %d to %d.\n", id, from, to);
     	
     	lift_travel(mainlift, id, from, to);//res
     	current = to;
 
-    	printf("Passenger %d arrived at %d.\n", id, current);
+    	//printf("Passenger %d arrived at %d.\n", id, current);
     	
     	si_sem_wait(&mainlift->mutex);
 
@@ -84,6 +90,7 @@ void passenger_task(void)
 
     	si_sem_signal(&mainlift->mutex);
     	
+		n_travels++;
     	si_wait_n_ms(TIME_TO_NEW_JOURNEY);
     
     }
@@ -105,57 +112,6 @@ void lift_task(void)
 	lift_move(mainlift, next, dirchange);
 	lift_has_arrived(mainlift);
 	
-	
-	/* För debug
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-	    lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_next_floor(mainlift, &next, &dirchange);
-		printf("|%d %d %d |", mainlift->floor, next, dirchange); 
-		lift_move(mainlift, next, dirchange);
-		
-		lift_has_arrived(mainlift);
-		
-		printf("| %d %d |", next, dirchange);
-		exit(mainlift->floor);
-		*/
     }
 }
 
@@ -167,7 +123,8 @@ void user_task(void)
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 
-	int n_persons = 0;
+	int n_persons;
+	n_persons = 0;
 	
 	/* message array */ 
     char message[SI_UI_MAX_MESSAGE_SIZE]; 
@@ -177,9 +134,9 @@ void user_task(void)
         /* read a message */ 
         si_ui_receive(message); 
         /* check if it is a set time message */ 
-        if (strncmp(message, "new", 3) == 0)
+        if (si_string_compare(message, "new") == 0)
         {
-		printf("blaba!!!!\n");
+		//printf("blaba!!!!\n");
 			if (n_persons == MAX_N_PERSONS)
 			{
 				si_ui_show_error("Failure to comply: Overpopulation!");
@@ -193,9 +150,9 @@ void user_task(void)
 			}
         }
         /* check if it is an exit message */ 
-        else if (strcmp(message, "exit") == 0)
+        else if (si_string_compare(message, "exit") == 0)
         {
-            exit(0); 
+            return;//exit(0); 
         }
         /* not a legal message */ 
         else 
@@ -218,16 +175,18 @@ int main(void)
     si_message_init(); 
 	
 	/* set up random number generator */
-	srand(12345);
+	//srand(12345);
     
     /* initialise UI channel */ 
     si_ui_init(); 
-
+    draw_init();
+    
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 
+    mainlift=&mainliftStatic;
     /* initialise variables */         
-    mainlift=lift_create();
+    lift_create(mainlift);
 
     /* create tasks */ 
 

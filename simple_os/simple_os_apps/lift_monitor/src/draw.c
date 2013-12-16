@@ -6,8 +6,6 @@
    interaction functions */ 
 #include <simple_os.h>
 
-#include <stdio.h>
-
 #define LEVEL_OFFSET 75
 
 static char message[SI_UI_MAX_MESSAGE_SIZE]; 
@@ -27,6 +25,30 @@ static int info_y = 20;
 
 static int id_x_offset = 7; 
 static int id_y_offset = -10; 
+
+void draw_init(void)
+{
+    xBuilding = 50; 
+    yBuilding = 100; 
+
+    xLift = 355; 
+
+    yLift[0] = 180; 
+    yLift[1] = 268; 
+    yLift[2] = 356; 
+    yLift[3] = 444; 
+    yLift[4] = 532; 
+
+    cxGubbe = 41; 
+    cyGubbe = 73; 
+    delta_y_Gubbe = 0; 
+
+    info_x = 160;
+    info_y = 20;
+
+    id_x_offset = 7; 
+    id_y_offset = -10; 
+}
 
 void draw_lift(lift_type lift)
 {
@@ -50,11 +72,9 @@ void draw_lift(lift_type lift)
             si_ui_draw_image("gubbe", 
                            xLift + i*cxGubbe, yLift[lift->floor] - cyGubbe + delta_y_Gubbe); 
 
-            sprintf(message, "%d   %d", 
-                    lift->passengers_in_lift[i].id, 
-                    lift->passengers_in_lift[i].to_floor); 
-            printf("Passenger %d  to %d.\n",lift->passengers_in_lift[i].id, 
-                    lift->passengers_in_lift[i].to_floor); 
+            si_string_copy(message, "%x   %x"); 
+            si_insert_int_as_hex_no_leading_zeros(message, lift->passengers_in_lift[i].id); 
+            si_insert_int_as_hex_no_leading_zeros(message, lift->passengers_in_lift[i].to_floor); 
             si_ui_draw_string(message, xLift + i*cxGubbe + id_x_offset, 
                             yLift[lift->floor] - cyGubbe + delta_y_Gubbe + id_y_offset);
         }
@@ -63,7 +83,8 @@ void draw_lift(lift_type lift)
     /* draw waiting persons */ 
     for (floor = 0; floor < N_FLOORS; floor++)
     {
-        sprintf(message, " %d ", floor); 
+        si_string_copy(message, " %x "); 
+        si_insert_int_as_hex_no_leading_zeros(message, floor); 
         si_ui_draw_string(message, xLift - LEVEL_OFFSET/2 + 5, yLift[floor] - 3); 
 
         for (i = 0; i < MAX_N_PERSONS; i++)
@@ -72,7 +93,8 @@ void draw_lift(lift_type lift)
             {
                 si_ui_draw_image("gubbe", xLift - LEVEL_OFFSET - i*(cxGubbe + 2), 
                                yLift[floor] - cyGubbe); 
-                sprintf(message, "%d", lift->persons_to_enter[floor][i].id); 
+                si_string_copy(message, "%x"); 
+                si_insert_int_as_hex_no_leading_zeros(message, lift->persons_to_enter[floor][i].id); 
                 si_ui_draw_string(message, xLift  - LEVEL_OFFSET - i*(cxGubbe + 2) - 3, 
                                 yLift[floor] - cyGubbe + 5);
 
