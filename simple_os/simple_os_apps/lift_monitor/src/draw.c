@@ -4,7 +4,7 @@
 
 /* include simple_os.h, to get access to Simple_OS GUI 
    interaction functions */ 
-#include <simple_os.h>
+#include "si_ui.h"
 
 #include <stdio.h>
 

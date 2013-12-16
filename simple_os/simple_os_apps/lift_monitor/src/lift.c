@@ -1,7 +1,7 @@
 #include "lift.h"
 
 /* Simple_OS include */ 
-#include <simple_os.h>
+//#include <simple_os.h>
 
 /* drawing module */ 
 #include "draw.h"

@@ -1,7 +1,7 @@
 #ifndef LIFT_H
 #define LIFT_H
 
-#include <simple_os.h>
+//#include <simple_os.h>
 
 #include <pthread.h>
 
@@ -121,7 +121,7 @@ int random_level(void);
 void init_lift(void);
 
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */
-void passenger_task(void);
+void passenger_task(void *ptr);
 
 /* There shall be one task, called lift_task, for the lift.  */
 void lift_task(void);

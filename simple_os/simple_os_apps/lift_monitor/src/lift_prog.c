@@ -1,7 +1,7 @@
 #include "lift.h"
 
 /* Simple_OS include */ 
-#include <simple_os.h>
+#include "si_ui.h"
 
 /* drawing module */ 
 #include "draw.h"
@@ -16,23 +16,11 @@
 /* unistd is needed for usleep and sleep */ 
 #include <unistd.h>
 
-/* stack size */ 
-#define STACK_SIZE 5000 
-
-/* stack declarations */ 
-
-/* stack for user_task */ 
-stack_item User_Stack[STACK_SIZE];
-
-/* stack for lift_task */ 
-stack_item Lift_Stack[STACK_SIZE]; 
-
-/* Stacks for passenger tasks */
-stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
 /* the lift to be initialised */
 lift_type mainlift;
 
+pthread_t passangers_threads[MAX_N_PERSONS];
 
 
 /* random_level: computes a randomly chosen level */
@@ -47,7 +35,7 @@ int random_level(void)
 
 
 /* The shall be one task for each person. All person tasks shall be implemented by the same C function, called passenger_task. */
-void passenger_task(void)
+void passenger_task(void *ptr)
 {
 	//printf("blaba\n");
 
@@ -60,8 +48,11 @@ void passenger_task(void)
 	int to;
 
     /* receive id */ 
-    si_message_receive((char *) &id, &length, &send_task_id);
-	
+    //char *message;
+    //message = (char *) ptr;
+    //id = atoi(message);
+    id= *((int *)ptr);
+	printf("Passenger id: %d ", id);
 	current = random_level();	
 
 	while (1)
@@ -132,17 +123,16 @@ void user_task(void)
         /* check if it is a set time message */ 
         if (strncmp(message, "new", 3) == 0)
         {
-		printf("blaba!!!!\n");
+		    printf("blaba!!!!\n");
 			if (n_persons == MAX_N_PERSONS)
 			{
 				si_ui_show_error("Failure to comply: Overpopulation!");
 			} else {
 			
 				int id = n_persons++;
-				si_task_create(passenger_task, &Passenger_Stack[id][STACK_SIZE-1], 17);
-			
-				/* send id message to created task */ 
-				si_message_send((char *) &id, sizeof(int), id_to_task_id(id)); 
+                //char stringNum[20];
+                //sprintf(stringNum,"%d",id);
+                pthread_create(&passangers_threads[id], NULL, passenger_task,(void*) &id);
 			}
         }
         /* check if it is an exit message */ 
@@ -164,12 +154,10 @@ void user_task(void)
  
 int main(void)
 {
-    /* initialise kernel */ 
-    si_kernel_init(); 
-	
-	/* initialise message handling */ 
-    si_message_init(); 
-	
+    pthread_t lift_thread, user_thread;
+    int  iret1, iret2;
+
+
 	/* set up random number generator */
 	srand(12345);
     
@@ -184,12 +172,16 @@ int main(void)
 
     /* create tasks */ 
 
-    si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 20); 
+    iret1 = pthread_create(&lift_thread, NULL, lift_task,NULL);
+    iret2 = pthread_create(&user_thread, NULL, user_task,NULL);
 
-    si_task_create(user_task, &User_Stack[STACK_SIZE-1], 15);
- 
-    /* start the kernel */ 
-    si_kernel_start(); 
+    /* Wait till threads are complete before main continues. Unless we  */
+    /* wait we run the risk of executing an exit which will terminate   */
+    /* the process and all threads before the threads have completed.   */
+
+    pthread_join(lift_thread, NULL);
+    pthread_join(user_thread, NULL);
+
 
     /* will never be here! */ 
     return 0; 
