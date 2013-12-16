@@ -1,5 +1,5 @@
 #include "lift.h"
-
+#include "draw.h"
 /* Simple_OS include */ 
 #include <simple_os.h>
 
@@ -38,9 +38,9 @@ int Lowest_Passenger_Task_Id;
 
 /* the lift to be initialised */
 lift_data_type mainliftStatic;
-lift_type mainlift=&mainliftStatic;
+lift_data_type *mainlift=&mainliftStatic;
 
-
+void create_passenger(int id, int priority);
 
 /* random_level: computes a randomly chosen level */
 int random_level(int id)
@@ -67,7 +67,8 @@ void passenger_task(void)//TODO
 	int to;
 	
 	int arrived;
-    int n_travels=0;
+    int n_travels;
+    n_travels=0;
 
     message_data_type msg;
 	
@@ -99,7 +100,7 @@ void passenger_task(void)//TODO
     	travel_msg.to_floor = to;
 		
 		si_message_send((char *) &travel_msg, sizeof(travel_msg), Lift_Task_Id);
-
+        si_ui_show_error("pasengertask wants to travel");
 		while(!arrived)
 		{
 			si_message_receive((char *) &msg, &length, &send_task_id);
@@ -148,6 +149,7 @@ void lift_task(void)//TODO
             /* a travel message is sent to the lift task when a 
                person would like to make a lift travel */ 
 		    enter_floor(mainlift, msg.id, msg.from_floor, msg.to_floor);
+		    si_ui_show_error("Passenger began travel");
         }
 		
 		draw_lift(mainlift);
@@ -163,7 +165,8 @@ void user_task(void)//TODO
     /* set size of GUI window */ 
     si_ui_set_size(670, 700); 
 
-	int n_persons = 0;
+	int n_persons;
+    n_persons = 0;
 	
 	/* message array */ 
     char message[SI_UI_MAX_MESSAGE_SIZE]; 
@@ -181,7 +184,8 @@ void user_task(void)//TODO
 				si_ui_show_error("Failure to comply: Overpopulation!");
 			} else {
 			
-				int id = n_persons++;
+				int id;
+				id=n_persons++;
                 create_passenger(id, 17);
 			}
         }
@@ -257,9 +261,7 @@ int main(void)
     /* initialise variables */         
     lift_init(mainlift);
 
-    /* create tasks */ 
-
-    /* create tasks */ 
+    draw_init();
 
     si_task_create(
         lift_task, &Lift_Stack[STACK_SIZE - 1], LIFT_PRIORITY);

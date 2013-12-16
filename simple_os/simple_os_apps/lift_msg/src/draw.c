@@ -50,7 +50,7 @@ void draw_init(void)
     id_y_offset = -10; 
 }
 
-void draw_lift(lift_type lift)
+void draw_lift(lift_data_type* lift)
 {
     int floor, i; 
 

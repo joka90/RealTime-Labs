@@ -22,11 +22,11 @@ static void lift_panic(const char message[])
 
 /* --- monitor data type for lift and operations for create and delete START --- */
 
-/* lift_create: creates and initialises a variable of type lift_type */
-void lift_init(lift_type lift) 
+/* lift_create: creates and initialises a variable of type lift_data_type* */
+void lift_init(lift_data_type* lift) 
 {
     /* the lift to be initialised */
-    //lift_type lift;
+    //lift_data_type* lift;
 
     /* floor counter */ 
     int floor; 
@@ -64,7 +64,7 @@ void lift_init(lift_type lift)
 }
 
 /* lift_delete: deallocates memory for lift */
-void lift_delete(lift_type lift)
+void lift_delete(lift_data_type* lift)
 {
     //free(lift);
 }
@@ -78,7 +78,7 @@ void lift_delete(lift_type lift)
 /* MONITOR function lift_next_floor: computes the floor to which the lift 
    shall travel. The parameter *change_direction indicates if the direction 
    shall be changed */
-void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)//TODO
+void lift_next_floor(lift_data_type* lift, int *next_floor, int *change_direction)//TODO
 {
    	
 	if (lift->up)
@@ -105,7 +105,7 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)//TO
 	
 }
 
-void lift_move(lift_type lift, int next_floor, int change_direction)//TODO
+void lift_move(lift_data_type* lift, int next_floor, int change_direction)//TODO
 {
 
         
@@ -130,9 +130,10 @@ void lift_move(lift_type lift, int next_floor, int change_direction)//TODO
 }
 
 /* this function is used also by the person tasks */ 
-static int n_passengers_in_lift(lift_type lift)
+static int n_passengers_in_lift(lift_data_type* lift)
 {
-    int n_passengers = 0; 
+    int n_passengers;
+    n_passengers = 0; 
     int i; 
         
     for (i = 0; i < MAX_N_PASSENGERS; i++)
@@ -145,63 +146,17 @@ static int n_passengers_in_lift(lift_type lift)
     return n_passengers; 
 }
 
-/* Ger hur många i hissen som ska av på en viss våning */
-static int n_passengers_to_floor(lift_type lift, int floor)
-{
-	int n = 0;
-	int i;
-	
-	for (i=0; i < MAX_N_PASSENGERS; i++)
-		{
-			if(lift->passengers_in_lift[i].to_floor == floor)
-			{
-				n++;
-			}
-		}
-		
-	return n;
-}
-		
-
-/* Ger hur många i på en viss våning som vill in */
-static int n_passengers_on_floor(lift_type lift, int floor)
-{
-	int n = 0;
-	int i;
-	
-	for (i=0; i < MAX_N_PASSENGERS; i++)
-		{
-			if(lift->persons_to_enter[floor][i].id != NO_ID)
-			{
-				n++;
-			}
-		}
-		
-	return n;
-}		
+			
 
 /* --- functions related to lift task END --- */
 
 
 /* --- functions related to person task START --- */
 
-/* passenger_wait_for_lift: returns non-zero if the passenger shall
-   wait for the lift, otherwise returns zero */
-static int passenger_wait_for_lift(lift_type lift, int wait_floor)
-{
-    int waiting_ready =
-        /* and the lift is at wait_floor */ 
-        lift->floor == wait_floor && 
-        /* and the lift is not full */ 
-        n_passengers_in_lift(lift) < MAX_N_PASSENGERS; 
-
-    return !waiting_ready;
-}
-
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
 void enter_floor(
-    lift_type lift, int id, int floor, int tofloor)
+    lift_data_type* lift, int id, int floor, int tofloor)
 {
     int i; 
     int floor_index; 
@@ -230,7 +185,7 @@ void enter_floor(
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-void leave_floor(lift_type lift, int id, int enter_floor)
+void leave_floor(lift_data_type* lift, int id, int enter_floor)
 {
     int i;
     int floor_index;
@@ -258,10 +213,9 @@ void leave_floor(lift_type lift, int id, int enter_floor)
 }
 
 
-void leave_lift(lift_type lift, int to_floor)
+void leave_lift(lift_data_type* lift, int to_floor)
 {
     int i; 
-    int lift_index; 
 	message_data_type travel_msg;
 	travel_msg.type = TRAVEL_DONE_MESSAGE;
 
@@ -281,7 +235,7 @@ void leave_lift(lift_type lift, int to_floor)
 }
 
 
-void enter_lift(lift_type lift, int floor, int max_enterers)
+void enter_lift(lift_data_type* lift, int floor, int max_enterers)
 {
     int i; 
     int j;
@@ -322,11 +276,12 @@ void enter_lift(lift_type lift, int floor, int max_enterers)
 }
 
 
-void lift_has_arrived(lift_type lift)
+void lift_has_arrived(lift_data_type* lift)
 {
 
     leave_lift(lift, lift->floor);
-    int i_hissen = n_passengers_in_lift(lift);
+    int i_hissen;
+    i_hissen = n_passengers_in_lift(lift);
     enter_lift(lift, lift->floor, MAX_N_PASSENGERS - i_hissen);
 }
 
@@ -343,33 +298,6 @@ int id_to_task_id(int id)
 {
     return id + TASK_ID_FIRST_PERSON; 
 }
-
-/* n_passengers_to_leave: returns the number of passengers in the 
-   lift having the destination floor equal to floor */
-int n_passengers_to_leave(lift_type lift, int floor)
-{
-//TODO
-} 
-
-/* n_persons_to_enter: returns the number of persons standing on 
-   floor floor */ 
-int n_persons_to_enter(lift_type lift, int floor)
-{
-//TODO
-} 
-
-/* lift_is_full: returns nonzero if the lift is full, returns zero 
-   otherwise */ 
-int lift_is_full(lift_type lift)
-{
-//TODO
-}  
-
-/* get_current_floor: returns the floor on which the lift is positioned */ 
-int get_current_floor(lift_type lift)
-{
-//TODO
-} 
 
 /* --- functions related to person task END --- */
 

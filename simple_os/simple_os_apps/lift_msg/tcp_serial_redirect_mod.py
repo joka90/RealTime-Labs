@@ -320,9 +320,11 @@ if __name__ == '__main__':
             sys.stderr.write('Disconnected\n')
             connection.close()
         except KeyboardInterrupt:
+            connection.close()
             break
         except socket.error, msg:
             sys.stderr.write('ERROR: %s\n' % msg)
-
+            connection.close()
+            sys.stderr.write('PID %s\n' % (os.getpid(),))
     sys.stderr.write('\n--- exit ---\n')
 

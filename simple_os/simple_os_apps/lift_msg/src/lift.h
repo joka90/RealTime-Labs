@@ -79,11 +79,11 @@ typedef lift_data_type* lift_type;
 
 
 
-/* lift_create: creates and initialises a variable of type lift_type */
-void lift_init(lift_type lift); 
+/* lift_create: creates and initialises a variable of type lift_data_type* */
+void lift_init(lift_data_type* lift); 
 
 /* lift_delete: deallocates memory for lift */
-void lift_delete(lift_type lift); 
+void lift_delete(lift_data_type* lift); 
 
 
 
@@ -93,24 +93,24 @@ void lift_delete(lift_type lift);
    the lift shall travel. The parameter *change_direction 
    indicates if the direction shall be changed */
 void lift_next_floor(
-    lift_type lift, int *next_floor, int *change_direction); 
+    lift_data_type* lift, int *next_floor, int *change_direction); 
 
 /* MONITOR function lift_move: makes the lift move from its current 
    floor to next_floor. The parameter change_direction indicates if 
    the move includes a change of direction. This function shall be 
    called by the lift process when the lift shall move */ 
 void lift_move(
-    lift_type lift, int next_floor, int change_direction); 
+    lift_data_type* lift, int next_floor, int change_direction); 
 
 /* get_current_floor: returns the floor on which the lift is positioned */ 
-int get_current_floor(lift_type lift); 
+int get_current_floor(lift_data_type* lift); 
 
 
 /* MONITOR function lift_travel: makes the person with id id perform 
    a journey with the lift, starting at from_floor and ending 
    at to_floor */ 
 void lift_travel(
-    lift_type lift, int id, int from_floor, int to_floor);
+    lift_data_type* lift, int id, int from_floor, int to_floor);
 	
 /* fig_end mon_functions */ 
 
@@ -132,30 +132,30 @@ void user_task(void);
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
-void leave_floor(lift_type lift, int id, int enter_floor);
+void leave_floor(lift_data_type* lift, int id, int enter_floor);
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
-void enter_floor(lift_type lift, int id, int floor, int tofloor);
+void enter_floor(lift_data_type* lift, int id, int floor, int tofloor);
 
 
-void leave_lift(lift_type lift, int to_floor);
-void enter_lift(lift_type lift, int id, int to_floor);
+void leave_lift(lift_data_type* lift, int to_floor);
+void enter_lift(lift_data_type* lift, int id, int to_floor);
 
 
 /* n_passengers_to_leave: returns the number of passengers in the 
    lift having the destination floor equal to floor */
-int n_passengers_to_leave(lift_type lift, int floor); 
+int n_passengers_to_leave(lift_data_type* lift, int floor); 
 
 /* n_persons_to_enter: returns the number of persons standing on 
    floor floor */ 
-int n_persons_to_enter(lift_type lift, int floor); 
+int n_persons_to_enter(lift_data_type* lift, int floor); 
 
 /* lift_is_full: returns nonzero if the lift is full, returns zero 
    otherwise */ 
-int lift_is_full(lift_type lift); 
+int lift_is_full(lift_data_type* lift); 
 
 int id_to_task_id(int id);
 
-void lift_has_arrived(lift_type lift);
+void lift_has_arrived(lift_data_type* lift);
 
 #endif

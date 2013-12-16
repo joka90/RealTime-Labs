@@ -8,7 +8,7 @@
    waiting persons, and travelling passengers. It also prints 
    the person id for each waiting person, and prints id and 
    destination floor for each passenger */ 
-void draw_lift(lift_type lift);
+void draw_lift(lift_data_type* lift);
 /* fig_end draw_lift_h */ 
-
+void draw_init(void);
 #endif
