@@ -42,6 +42,7 @@ int randVari;
 /* random_level: computes a randomly chosen level */
 int random_level(int id)
 {
+    randVari=randVari*randVari;
     /* return random number between 0 and N_FLOORS-1 */
     return ((mainlift->floor)*id+randVari+56) % N_FLOORS;
 }
