@@ -110,7 +110,7 @@ void lift_travel(
 /* fig_end mon_functions */ 
 
 
-int random_level(int id);
+unsigned int random_level(int id);
 
 
 void init_lift(void);

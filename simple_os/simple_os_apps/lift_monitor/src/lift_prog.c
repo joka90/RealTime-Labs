@@ -37,14 +37,15 @@ lift_data_type *mainlift;
 
 void create_passenger(int id, int priority);
 
-int randVari;
+unsigned int randVari;
 
 /* random_level: computes a randomly chosen level */
-int random_level(int id)
+unsigned int random_level(int id)
 {
     randVari=randVari*randVari;
+    unsigned int t = ((mainlift->floor)*id+randVari+56);
     /* return random number between 0 and N_FLOORS-1 */
-    return ((mainlift->floor)*id+randVari+56) % N_FLOORS;
+    return t % N_FLOORS;
 }
 
 
@@ -77,7 +78,7 @@ void passenger_task(void)
     {
 	
     	from = current;
-    	to = random_level(id);
+    	to = (int)random_level(id);
     	
     	
     	si_sem_wait(&mainlift->mutex);
